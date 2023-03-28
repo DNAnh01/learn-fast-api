@@ -1,4 +1,4 @@
-from fastapi import FastAPI, Query, Path, Body, Cookie, Header, status
+from fastapi import FastAPI, Query, Path, Body, Cookie, Header, status, Form
 from enum import Enum
 from typing import Optional, Literal, Union
 from pydantic import BaseModel, Field, HttpUrl, EmailStr
@@ -498,6 +498,23 @@ app = FastAPI()
 #     return {"hello": "world"}
 
 ## Part 16 - Form Fields
+# class User(BaseModel):
+#     username: str
+#     password: str
+
+@app.post("/login/")
+async def login(username: str = Form(...), password: str = Body(...)):
+    print("password", password)
+    return {"username": username}
+
+
+@app.post("/login-json/")
+async def login_json(username: str = Body(...), password: str = Body(...)):
+    print("password", password)
+    return {"username": username}
+
+
+
 
 
 

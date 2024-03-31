@@ -20,7 +20,7 @@ app.include_router(api_router, prefix=settings.API_V1_STR)
 from app.db.init_db import init_db
 
 # Check if the project has been initialized before
-if settings.ENV == 'development':
+if settings.ENV == "development":
     init_db()
 
 # delete all folders __pycache__ in the project

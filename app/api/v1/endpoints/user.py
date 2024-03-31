@@ -10,6 +10,7 @@ from app.services.user_service_impl import UserServiceImpl
 router = APIRouter()
 user_service: UserService = UserServiceImpl()
 
+
 @router.post("/", status_code=status.HTTP_201_CREATED, response_model=UserOut)
 def create_user(user: UserCreate, db: Session = Depends(deps.get_db)) -> UserOut:
     """
@@ -30,6 +31,3 @@ def create_user(user: UserCreate, db: Session = Depends(deps.get_db)) -> UserOut
     new_user = user_service.create(db=db, user=user)
 
     return new_user
-
-
-

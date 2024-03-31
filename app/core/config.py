@@ -26,7 +26,6 @@ class Settings(BaseSettings):
 
     SQLALCHEMY_DATABASE_URI: Optional[PostgresDsn] = None
 
-
     ALGORITHM: str = os.environ.get("ALGORITHM")
     ACCESS_TOKEN_EXPIRE_MINUTES: int = os.environ.get("ACCESS_TOKEN_EXPIRE_MINUTES")
 

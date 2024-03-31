@@ -12,7 +12,7 @@ from app.services.user_service_impl import UserServiceImpl
 
 user_service: UserService = UserServiceImpl()
 
-oauth2_scheme = OAuth2PasswordBearer(tokenUrl='login')
+oauth2_scheme = OAuth2PasswordBearer(tokenUrl="login")
 
 
 def create_access_token(data: Dict[str, Union[str, int]]) -> str:
@@ -30,10 +30,11 @@ def create_access_token(data: Dict[str, Union[str, int]]) -> str:
     expire = datetime.utcnow() + timedelta(minutes=settings.ACCESS_TOKEN_EXPIRE_MINUTES)
     to_encode.update({"exp": expire})
 
-    encoded_jwt = jwt.encode(to_encode, key=settings.SECRET_KEY, algorithm=settings.ALGORITHM)
+    encoded_jwt = jwt.encode(
+        to_encode, key=settings.SECRET_KEY, algorithm=settings.ALGORITHM
+    )
 
     return encoded_jwt
-
 
 
 def verify_access_token(token: str, credentials_exception: HTTPException) -> TokenData:
@@ -49,25 +50,25 @@ def verify_access_token(token: str, credentials_exception: HTTPException) -> Tok
     """
     try:
         # Decode the token using the secret key and algorithm from settings
-        payload = jwt.decode(token, key=settings.SECRET_KEY, algorithms=[settings.ALGORITHM])
-        
+        payload = jwt.decode(
+            token, key=settings.SECRET_KEY, algorithms=[settings.ALGORITHM]
+        )
+
         # Get the user id from the payload
         id: str = payload.get("user_id")
-        
+
         # If the id is None, raise the credentials exception
         if id is None:
             raise credentials_exception
-        
+
         # Create a TokenData instance with the id
-        token_data = TokenData(id=id) 
+        token_data = TokenData(id=id)
     except JWTError:
         # If there is a JWTError while decoding, raise the credentials exception
         raise credentials_exception
 
     # Return the token data
     return token_data
-
-
 
 
 # def get_current_user(token: str = Depends(oauth2_scheme), db: Session = Depends(database.get_db)):

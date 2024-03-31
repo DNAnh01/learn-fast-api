@@ -1,42 +1,29 @@
+import uuid
 from datetime import datetime
-from typing import List
+from typing import Optional
 
-from pydantic import UUID4, BaseModel
-
-from app.common.string_case import to_camel_case
+from pydantic import BaseModel, EmailStr
 
 
-class UserBase(BaseModel):
+class UserCreate(BaseModel):
+    email: EmailStr
+    password: str
 
-    full_name: str
+class UserLogin(BaseModel):
+    email: EmailStr
+    password: str
 
-    class Config:
-        alias_generator = to_camel_case
-        populate_by_name = True
-
-
-class UserCreate(UserBase):
-    pass
-
-
-class UserUpdate(UserBase):
-    pass
-
-
-class UserInDBBase(UserBase):
-    id: UUID4
+class UserOut(BaseModel):
+    id: uuid.UUID
+    email: str
     created_at: datetime
-    updated_at: datetime
-    is_active: bool
-
     class Config:
-        from_attributes = True
+        orm_mode = True
 
-
-class User(UserInDBBase):
-    pass
-
-
-class Users(BaseModel):
-    total: int
-    results: List[User]
+class UserUpdate(BaseModel):
+    email: Optional[EmailStr] = None
+    password: Optional[str] = None
+    full_name: Optional[str] = None
+    display_name: Optional[str] = None
+    avatar_url: Optional[str] = None
+    user_role: Optional[str] = None

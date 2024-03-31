@@ -1,24 +1,16 @@
+import uuid
 from abc import ABC, abstractmethod
 
 from sqlalchemy.orm import Session
 
-from app.models.user import User
-from app.schemas.user import UserCreate, UserUpdate
+from app.schemas.user import UserCreate, UserOut
 
 
 class UserService(ABC):
     @abstractmethod
-    def get(self, db: Session, id: int):
+    def get(self, db: Session, id: uuid.UUID) -> UserOut:
         pass
 
     @abstractmethod
-    def create(self, db: Session, user: UserCreate) -> User:
-        pass
-
-    @abstractmethod
-    def update(self, db: Session, id: int, user: UserUpdate):
-        pass
-
-    @abstractmethod
-    def get_multi(self, db: Session, filter_param: str):
+    def create(self, db: Session, user: UserCreate) -> UserOut:
         pass

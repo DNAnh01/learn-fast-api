@@ -1,5 +1,35 @@
 from typing import List
 
+from passlib.context import CryptContext
+
+# Create a CryptContext instance with bcrypt as the hashing scheme
+pwd_context = CryptContext(schemes=["bcrypt"], deprecated="auto")
+
+def hash(password: str) -> str:
+    """
+    Hash a password using the bcrypt scheme.
+
+    Parameters:
+    password (str): The password to be hashed.
+
+    Returns:
+    str: The hashed password.
+    """
+    return pwd_context.hash(password)
+
+def verify(plain_password: str, hashed_password: str) -> bool:
+    """
+    Verify a password against a hashed password.
+
+    Parameters:
+    plain_password (str): The plain text password to be verified.
+    hashed_password (str): The hashed password to verify against.
+
+    Returns:
+    bool: True if the password matches the hashed password, False otherwise.
+    """
+    return pwd_context.verify(plain_password, hashed_password)
+
 
 def pick_(source: any, keys: List[str]) -> dict:
     """

@@ -39,7 +39,6 @@ class Base:
     # Generate __tablename__ automatically from class name
     @declared_attr
     def __tablename__(cls) -> str:
-
         return snake_case(cls.__name__)
 
 

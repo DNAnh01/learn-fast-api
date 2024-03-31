@@ -9,7 +9,7 @@ from sqlalchemy.exc import IntegrityError
 from sqlalchemy.orm import Session
 
 from app.common.string_case import decamelize
-from app.common.util import clone_model
+from app.common.utils import clone_model
 from app.db.base_class import Base
 from app.db.query_builder import get_count, get_filter, query_builder
 

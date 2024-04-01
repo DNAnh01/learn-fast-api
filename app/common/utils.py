@@ -1,10 +1,32 @@
+from datetime import datetime, timedelta
 from typing import List
 
 from passlib.context import CryptContext
 
+from app.core.config import settings
+
 # Create a CryptContext instance with bcrypt as the hashing scheme
 pwd_context = CryptContext(schemes=["bcrypt"], deprecated="auto")
 
+
+def get_expires_at() -> datetime:
+    """
+    Calculate the expiry time for an access token.
+
+    This function gets the current time and adds the number of minutes specified in 
+    settings.ACCESS_TOKEN_EXPIRE_MINUTES to it to calculate the expiry time.
+
+    Returns:
+    datetime: The datetime object representing the expiry time of the access token.
+    """
+    # Get the current time
+    now = datetime.now()
+
+    # Calculate the expiry time by adding the number of minutes specified in 
+    # settings.ACCESS_TOKEN_EXPIRE_MINUTES to the current time
+    expires_at = now + timedelta(minutes=settings.ACCESS_TOKEN_EXPIRE_MINUTES)
+
+    return expires_at
 
 def hash(password: str) -> str:
     """

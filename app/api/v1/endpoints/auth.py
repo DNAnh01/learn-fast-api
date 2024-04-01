@@ -1,34 +1,35 @@
+"""
+    Sign up
+    Sign in
+    Sign in with Google
+"""
+
 from fastapi import APIRouter, Depends, HTTPException, status
-from fastapi.security.oauth2 import OAuth2PasswordRequestForm
 from sqlalchemy.orm import Session
 
 from app.api import deps
 from app.common import utils
 from app.core import oauth2
 from app.schemas.token import Token
-from app.services.user_service import UserService
-from app.services.user_service_impl import UserServiceImpl
+from app.schemas.user import UserCreate, UserLogin, UserOut
+from app.services.auth_service_impl import AuthServiceImpl
 
 router = APIRouter()
-user_service: UserService = UserServiceImpl()
+
+auth_service = AuthServiceImpl()
+
+@router.post("/sign-up", status_code=status.HTTP_201_CREATED, response_model=UserOut)
+def sign_up(user: UserCreate, db: Session = Depends(deps.get_db)) -> UserOut:
+    new_user = auth_service.sign_up(db=db, user=user)
+    return new_user
+
+@router.post("/sign-in",status_code=status.HTTP_200_OK ,response_model=Token)
+def sign_in(user: UserLogin, db: Session = Depends(deps.get_db)) -> Token:
+    # TODO: Implement the sign-in logic
+
+    token = auth_service.sign_in(db=db, user_credentials=user)
+    return token
 
 
-@router.post("/login", response_model=Token)
-def login(
-    user_credentials: OAuth2PasswordRequestForm = Depends(),
-    db: Session = Depends(deps.get_db),
-):
-    user = user_service.get_by_email(db=db, email=user_credentials.username)
-    if not user:
-        raise HTTPException(
-            status_code=status.HTTP_403_FORBIDDEN, detail=f"Invalid Credentials"
-        )
+# TODO: Implement the sign-in with Google logic
 
-    if not utils.verify(user_credentials.password, user.password):
-        raise HTTPException(
-            status_code=status.HTTP_403_FORBIDDEN, detail=f"Invalid Credentials"
-        )
-
-    access_token = oauth2.create_access_token(data={"user_id": str(user.id)})
-
-    return {"access_token": access_token, "token_type": "bearer"}

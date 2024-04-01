@@ -3,7 +3,6 @@ from abc import ABC, abstractmethod
 
 from sqlalchemy.orm import Session
 
-from app.schemas.auth import Auth
 from app.schemas.user import UserCreate, UserOut
 
 
@@ -18,5 +17,5 @@ class UserService(ABC):
         pass
 
     @abstractmethod
-    def get_by_email(self, db: Session, email: str) -> Auth:
+    def get_by_email(self, db: Session, email: str) -> UserOut:
         pass

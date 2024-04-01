@@ -1,12 +1,14 @@
 from datetime import datetime, timedelta
 from typing import Dict, Union
 
-from fastapi import HTTPException
+from fastapi import Depends, HTTPException, status
 from fastapi.security import OAuth2PasswordBearer
 from jose import JWTError, jwt
+from sqlalchemy.orm import Session
 
 from app.core.config import settings
 from app.schemas.token import TokenData
+from app.schemas.user import UserOut
 from app.services.user_service import UserService
 from app.services.user_service_impl import UserServiceImpl
 
@@ -71,13 +73,24 @@ def verify_access_token(token: str, credentials_exception: HTTPException) -> Tok
     return token_data
 
 
-# def get_current_user(token: str = Depends(oauth2_scheme), db: Session = Depends(database.get_db)):
-#     credentials_exception = HTTPException(status_code=status.HTTP_401_UNAUTHORIZED,
-#                                           detail=f"Could not validate credentials", headers={"WWW-Authenticate": "Bearer"})
+def get_current_user(db: Session, token: str = Depends(oauth2_scheme)) -> UserOut:
+    """
+    Get the current user from the access token.
 
-#     token_data = verify_access_token(token, credentials_exception)
-#     user = user_service.get(db, token_data.id)
+    Parameters:
+    db (Session): The database session.
+    token (str): The access token.
 
-#     if user is None:
-#         raise credentials_exception
-#     return user
+    Returns:
+    UserOut: The current user data.
+    """
+    credentials_exception = HTTPException(
+        status_code=status.HTTP_401_UNAUTHORIZED,
+        detail=f"Could not validate credentials",
+        headers={"WWW-Authenticate": "Bearer"},
+    )
+    token_data = verify_access_token(token, credentials_exception)
+    user = user_service.get_by_id(db, token_data.id)
+    if user is None:
+        raise credentials_exception
+    return user

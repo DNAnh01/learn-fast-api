@@ -9,8 +9,10 @@ class SessionBase(BaseModel):
     token: str
     expires_at: Optional[datetime]
 
+
 class SessionCreate(SessionBase):
     user_id: uuid.UUID
+
 
 class SessionOut(SessionBase):
     id: uuid.UUID
@@ -18,6 +20,7 @@ class SessionOut(SessionBase):
 
     class Config:
         orm_mode = True
+
 
 class SessionUpdate(SessionBase):
     token: Optional[str] = None

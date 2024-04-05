@@ -29,6 +29,15 @@ class Settings(BaseSettings):
     ALGORITHM: str = os.environ.get("ALGORITHM")
     ACCESS_TOKEN_EXPIRE_MINUTES: int = os.environ.get("ACCESS_TOKEN_EXPIRE_MINUTES")
 
+    GOOGLE_CLIENT_ID: str = os.environ.get("GOOGLE_CLIENT_ID")
+    GOOGLE_CLIENT_SECRET: str = os.environ.get("GOOGLE_CLIENT_SECRET")
+
+    REDIRECT_URL: str = os.environ.get("REDIRECT_URL")
+
+    MAIL_USERNAME: str = os.environ.get("MAIL_USERNAME")
+    MAIL_PASSWORD: str = os.environ.get("MAIL_PASSWORD")
+    MAIL_FROM: str = os.environ.get("MAIL_FROM")
+
     @field_validator("SQLALCHEMY_DATABASE_URI", mode="before")
     @classmethod
     def assemble_db_connection(cls, v: Optional[str], info: FieldValidationInfo) -> Any:

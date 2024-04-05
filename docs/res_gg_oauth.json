@@ -1,0 +1,16 @@
+{
+        "iss": "https: //accounts.google.com",
+        "azp": "1074201845842-d1t3g62luf0dv7h890j9reks92elge2v.apps.googleusercontent.com",
+        "aud": "1074201845842-d1t3g62luf0dv7h890j9reks92elge2v.apps.googleusercontent.com",
+        "sub": "103513124947422284961",
+        "email": "donguyenanh2k1@gmail.com",
+        "email_verified": true,
+        "at_hash": "fgRqzWg5guz0KkEAWzexEQ",
+        "nonce": "BIpkx9R4hZ9B9R5rlMuo",
+        "name": "Ánh Đỗ Nguyên",
+        "picture": "https: //lh3.googleusercontent.com/a/ACg8ocKgGEbNh0QFCGI4Oo2VOvcXCb8ZS1i4Bsn1hGdUpj0iaL71tDnk=s96-c",
+        "given_name": "Ánh",
+        "family_name": "Đỗ Nguyên",
+        "iat": 1712229229,
+        "exp": 1712232829
+}

@@ -6,4 +6,5 @@ from app.schemas.session import SessionCreate, SessionUpdate
 class CRUDSession(CRUDBase[Session, SessionCreate, SessionUpdate]):
     pass
 
+
 crud_session = CRUDSession(Session)

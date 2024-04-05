@@ -13,7 +13,7 @@ def get_expires_at() -> datetime:
     """
     Calculate the expiry time for an access token.
 
-    This function gets the current time and adds the number of minutes specified in 
+    This function gets the current time and adds the number of minutes specified in
     settings.ACCESS_TOKEN_EXPIRE_MINUTES to it to calculate the expiry time.
 
     Returns:
@@ -22,11 +22,12 @@ def get_expires_at() -> datetime:
     # Get the current time
     now = datetime.now()
 
-    # Calculate the expiry time by adding the number of minutes specified in 
+    # Calculate the expiry time by adding the number of minutes specified in
     # settings.ACCESS_TOKEN_EXPIRE_MINUTES to the current time
     expires_at = now + timedelta(minutes=settings.ACCESS_TOKEN_EXPIRE_MINUTES)
 
     return expires_at
+
 
 def hash(password: str) -> str:
     """

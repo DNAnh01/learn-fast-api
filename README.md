@@ -10,16 +10,20 @@
 
 ##### 3. Create a new virtual environment, install the necessary libraries, and run the project
 
+###### `Create a new virtual environment and install the necessary libraries`
+
 ```terminal
 conda create --name new_env_name python=3.9.6
 
 conda activate new_env_name
 
 conda install --file requirements.txt
+```
 
-uvicorn app.main:app
-<!-- or -->
-uvicorn app.main:app --reload
+###### `Run the project`
+
+```terminal
+uvicorn main:app --reload
 ```
 
 ##### 4. Project directory structure

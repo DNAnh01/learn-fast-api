@@ -10,8 +10,8 @@ from app.services.user_service import UserService
 
 class UserServiceImpl(UserService):
 
-    def __init__(self, __crud_user=crud_user):
-        self.__crud_user = __crud_user
+    def __init__(self):
+        self.__crud_user = crud_user
 
     def create(self, db: Session, user: UserCreate) -> UserOut:
         return self.__crud_user.create(db, obj_in=user)
@@ -19,7 +19,7 @@ class UserServiceImpl(UserService):
     def get_by_id(self, db: Session, id: uuid.UUID) -> UserOut:
         return self.__crud_user.get_one_by_or_fail(db, {"id": id})
 
-    def get_by_email_or_fail(self, db: Session, email: str) -> Auth:
+    def get_by_email_or_fail(self, db: Session, email: str) -> UserOut:
         return self.__crud_user.get_one_by_or_fail(db, {"email": email})
 
     def check_user_exists(self, db: Session, email: str) -> bool:
@@ -34,6 +34,4 @@ class UserServiceImpl(UserService):
 
     def update_is_verified(self, db: Session, email: str) -> UserOut:
         user = self.__crud_user.get_one_by_or_fail(db, {"email": email})
-        return self.__crud_user.update(
-            db, db_obj=user, obj_in={"is_verified": True}
-        )
+        return self.__crud_user.update(db, db_obj=user, obj_in={"is_verified": True})

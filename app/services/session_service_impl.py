@@ -11,15 +11,17 @@ from app.services.session_service import SessionService
 
 class SessionServiceImpl(SessionService):
 
-    def __init__(self, __crud_session=crud_session):
-        self.__crud_session = __crud_session
+    def __init__(self):
+        self.__crud_session = crud_session
 
     def create(self, db: Session, session: SessionCreate) -> SessionOut:
-        return self.__crud_session.create(db, obj_in=session)
+        return self.__crud_session.create(db=db, obj_in=session)
 
     def create_session(self, db: Session, user_id: str, expires_at: datetime):
         access_token: str = oauth2.create_access_token(data={"user_id": user_id})
-        new_session: SessionCreate = SessionCreate(token=access_token, user_id=user_id, expires_at=expires_at)
+        new_session: SessionCreate = SessionCreate(
+            token=access_token, user_id=user_id, expires_at=expires_at
+        )
         token_data = self.create(db=db, session=new_session)
         return token_data
 
@@ -35,7 +37,11 @@ class SessionServiceImpl(SessionService):
     def update_expires_at(
         self, db: Session, token: str, expires_at: datetime
     ) -> SessionOut:
+        
         session = self.__crud_session.get_one_by_or_fail(db, {"token": token})
         return self.__crud_session.update(
             db, db_obj=session, obj_in={"expires_at": expires_at}
         )
+    
+    def remove(self, db: Session, token: str) -> SessionOut:
+        return self.__crud_session.remove_by_token(db, token)

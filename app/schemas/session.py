@@ -17,6 +17,8 @@ class SessionCreate(SessionBase):
 class SessionOut(SessionBase):
     id: uuid.UUID
     created_at: datetime
+    updated_at: datetime
+    deleted_at: Optional[datetime]
 
     class Config:
         orm_mode = True

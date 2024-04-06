@@ -14,7 +14,7 @@ class SessionService:
         pass
 
     @abstractmethod
-    def create_session(self,db: Session, user_id: str, expires_at: datetime):
+    def create_session(self, db: Session, user_id: str, expires_at: datetime):
         pass
 
     @abstractmethod
@@ -33,4 +33,8 @@ class SessionService:
     def update_expires_at(
         self, db: Session, token: str, expires_at: datetime
     ) -> SessionOut:
+        pass
+
+    @abstractmethod
+    def remove(self, db: Session, token: str) -> SessionOut:
         pass

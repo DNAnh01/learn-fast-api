@@ -1,5 +1,6 @@
 from abc import ABC, abstractmethod
 
+from fastapi import Response
 from sqlalchemy.orm import Session
 from starlette.requests import Request
 
@@ -23,4 +24,8 @@ class AuthService(ABC):
 
     @abstractmethod
     async def handle_google_callback(self, request: Request, db: Session):
+        pass
+
+    @abstractmethod
+    def sign_out(self, db: Session, token: str) -> Response:
         pass

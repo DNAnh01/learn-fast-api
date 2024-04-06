@@ -18,6 +18,7 @@ oauth.register(
     server_metadata_url="https://accounts.google.com/.well-known/openid-configuration",
 )
 
+
 async def authorize_access_token(request: Request):
     try:
         token = await oauth.google.authorize_access_token(request)

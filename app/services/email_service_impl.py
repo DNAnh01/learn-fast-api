@@ -9,7 +9,6 @@ class EmailServiceImpl(EmailService):
     def __init__(self):
         self.__conf = conf
 
-
     async def send_verification_email(self, user_info: dict, access_token: str):
         fm = FastMail(self.__conf)
         message = MessageSchema(

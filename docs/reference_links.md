@@ -8,4 +8,8 @@
 
 ##### [YTB: Course from JVP Design](https://www.youtube.com/playlist?list=PLqAmigZvYxIL9dnYeZEhMoHcoP4zop8-p)
 
+##### [Repo: How to Write Logs](https://www.youtube.com/watch?v=pxuXaaT1u3k)
+
 ##### [Repo: Implement Google Sign-In](https://github.com/amoprocedures/fastapi-with-google-oauth/tree/master)
+
+##### [Repo: Implement Reset Password](https://github.com/Describly/fastapi-tdd-user-authentication/blob/main/app/templates/user/password-reset.html)

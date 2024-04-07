@@ -3,7 +3,9 @@ from abc import ABC, abstractmethod
 
 from sqlalchemy.orm import Session
 
-from app.schemas.user import UserCreate, UserInDB, UserOut
+from app.models.user import User
+from app.schemas.user import (UserCreate, UserInDB, UserOut, UserResetRequest,
+                              UserUpdate)
 
 
 class UserService(ABC):
@@ -23,11 +25,31 @@ class UserService(ABC):
     @abstractmethod
     def check_user_exists(self, db: Session, email: str) -> bool:
         pass
-
+    
     @abstractmethod
     def get_details_by_email(self, db: Session, email: str) -> UserInDB:
         pass
 
     @abstractmethod
+    async def load_user(self, db: Session, email: str) -> User:
+        pass
+
+    
+
+    @abstractmethod
     def update_is_verified(self, db: Session, email: str) -> UserOut:
         pass
+
+    @abstractmethod
+    def update(self, db: Session, id: uuid.UUID, user: UserUpdate) -> UserOut:
+        pass
+
+    @abstractmethod
+    async def load_user_by_token(self, db: Session, token: str) -> UserInDB:
+        pass
+
+    # @abstractmethod
+    # async def reset_user_password(self, db: Session, data: UserResetRequest):
+    #     pass
+
+    

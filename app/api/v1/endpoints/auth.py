@@ -12,7 +12,7 @@ from app.api import deps
 from app.core.google_auth import oauth
 from app.models.session import Session
 from app.schemas.token import Token
-from app.schemas.user import UserCreate, UserLogin, UserOut
+from app.schemas.user import UserCreate, UserLogin, UserOut, UserResetRequest
 from app.services.auth_service_impl import AuthServiceImpl
 from app.services.email_service_impl import EmailServiceImpl
 from app.services.session_service_impl import SessionServiceImpl
@@ -56,3 +56,11 @@ async def verification(token: str, db: Session = Depends(deps.get_db)):
 @router.post("/sign-out", status_code=status.HTTP_200_OK)
 def sign_out(token: str, db: Session = Depends(deps.get_db)):
     return auth_service.sign_out(db=db, token=token)
+
+@router.post("/forgot-password")
+async def forgot_password(email: str, db: Session = Depends(deps.get_db)):
+    return await auth_service.forgot_password(db=db, email=email)
+
+@router.get("/reset-password")
+async def reset_password(token: str, db: Session= Depends(deps.get_db)):
+    return await auth_service.reset_password(db = db, token=token)

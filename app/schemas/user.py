@@ -22,6 +22,7 @@ class UserLogin(UserBase):
 class UserOut(UserBase):
     id: uuid.UUID
     created_at: datetime
+    updated_at: datetime
 
     class Config:
         orm_mode = True
@@ -47,3 +48,7 @@ class UserUpdate(UserBase):
     avatar_url: Optional[str] = None
     is_verified: Optional[bool] = None
     user_role: Optional[str] = None
+
+class UserResetRequest(UserBase):
+    token: str
+    password: str

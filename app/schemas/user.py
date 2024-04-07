@@ -12,6 +12,7 @@ class UserBase(BaseModel):
 
 
 class UserCreate(UserBase):
+    print("Schemas")
     password: str
 
 

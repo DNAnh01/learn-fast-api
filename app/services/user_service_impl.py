@@ -14,6 +14,7 @@ class UserServiceImpl(UserService):
         self.__crud_user = crud_user
 
     def create(self, db: Session, user: UserCreate) -> UserOut:
+        print("IMPL")
         return self.__crud_user.create(db, obj_in=user)
 
     def get_by_id(self, db: Session, id: uuid.UUID) -> UserOut:

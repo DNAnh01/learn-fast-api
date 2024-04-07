@@ -28,6 +28,7 @@ email_service = EmailServiceImpl()
 
 @router.post("/sign-up", status_code=status.HTTP_201_CREATED, response_model=UserOut)
 def sign_up(user: UserCreate, db: Session = Depends(deps.get_db)) -> UserOut:
+    print("Sign Up called")
     new_user = auth_service.sign_up(db=db, user=user)
     return new_user
 

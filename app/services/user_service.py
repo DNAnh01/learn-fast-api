@@ -10,6 +10,7 @@ class UserService(ABC):
 
     @abstractmethod
     def create(self, db: Session, user: UserCreate) -> UserOut:
+        print("???")
         pass
 
     @abstractmethod

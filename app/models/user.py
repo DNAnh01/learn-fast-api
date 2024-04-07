@@ -5,6 +5,7 @@ from app.db.base_class import Base
 
 
 class User(Base):
+    print("Model")
     __tablename__ = "users"
     email = Column(String, unique=True, nullable=False)
     password = Column(String, nullable=False)
@@ -14,3 +15,4 @@ class User(Base):
     user_role = Column(String)
 
     sessions = relationship("Session", back_populates="user")
+    brains = relationship("Brain", back_populates="user")

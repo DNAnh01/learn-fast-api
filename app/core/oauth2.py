@@ -6,11 +6,14 @@ from fastapi.security import OAuth2PasswordBearer
 from jose import JWTError, jwt
 from sqlalchemy.orm import Session
 
+from app.common.logger import setup_logger
 from app.core.config import settings
 from app.schemas.token import TokenData
 from app.schemas.user import UserOut
 from app.services.user_service import UserService
 from app.services.user_service_impl import UserServiceImpl
+
+logger = setup_logger()
 
 user_service: UserService = UserServiceImpl()
 
@@ -61,12 +64,14 @@ def verify_access_token(token: str, credentials_exception: HTTPException) -> Tok
 
         # If the id is None, raise the credentials exception
         if id is None:
+            logger.error("User id is None")
             raise credentials_exception
 
         # Create a TokenData instance with the id
         token_data = TokenData(id=id)
     except JWTError:
         # If there is a JWTError while decoding, raise the credentials exception
+        logger.error("JWTError while decoding token")
         raise credentials_exception
 
     # Return the token data
@@ -92,5 +97,6 @@ def get_current_user(db: Session, token: str = Depends(oauth2_scheme)) -> UserOu
     token_data = verify_access_token(token, credentials_exception)
     user = user_service.get_by_id(db, token_data.id)
     if user is None:
+        logger.error("User not found")
         raise credentials_exception
     return user

@@ -59,6 +59,7 @@ def email_verify_template(name: str, token: str) -> str:
                 </html>
             """
 
+
 def email_forgot_password_template(name: str, token: str) -> str:
     return f"""
             <!DOCTYPE html>

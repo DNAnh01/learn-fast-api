@@ -1,3 +1,4 @@
+import asyncio
 from datetime import datetime
 
 from fastapi import HTTPException, Response, status
@@ -12,14 +13,14 @@ from app.common.logger import setup_logger
 from app.core import google_auth, oauth2
 from app.schemas.session import SessionCreate
 from app.schemas.token import Token
-from app.schemas.user import UserCreate, UserLogin, UserOut, UserUpdate
+from app.schemas.user import (UserCreate, UserGoogle, UserLogin, UserOut,
+                              UserUpdate)
 from app.services.auth_service import AuthService
 from app.services.email_service_impl import EmailServiceImpl
 from app.services.session_service_impl import SessionServiceImpl
 from app.services.user_service_impl import UserServiceImpl
 
 logger = setup_logger()
-
 
 
 class AuthServiceImpl(AuthService):
@@ -46,20 +47,24 @@ class AuthServiceImpl(AuthService):
         return new_user
 
     def sign_in(self, db: Session, user_credentials: UserLogin) -> Token:
-        user = self.__user_service.get_by_email_or_fail(db=db, email=user_credentials.email)
+        user = self.__user_service.get_by_email_or_fail(
+            db=db, email=user_credentials.email
+        )
         if not user:
+            logger.exception(f"User not found: {user_credentials.email}")
             raise HTTPException(
                 status_code=status.HTTP_403_FORBIDDEN, detail=f"Invalid Credentials"
             )
         if not utils.verify(user_credentials.password, user.password):
+            logger.exception(f"Invalid password: {user_credentials.email}")
             raise HTTPException(
                 status_code=status.HTTP_403_FORBIDDEN, detail=f"Invalid Credentials"
             )
         access_token: str = oauth2.create_access_token(data={"user_id": str(user.id)})
 
         token_data = self.__session_service.create_session(
-                        db=db, user_id=str(user.id), expires_at=utils.get_expires_at()
-                    )
+            db=db, user_id=str(user.id), expires_at=utils.get_expires_at()
+        )
         return Token(access_token=token_data.token, token_type="bearer")
 
     async def verify_user(self, db: Session, token: str) -> Token:
@@ -71,8 +76,21 @@ class AuthServiceImpl(AuthService):
         return Token(access_token=session.token, token_type="bearer")
 
     async def handle_google_callback(self, request: Request, db: Session):
-        token = await google_auth.authorize_access_token(request)
-        user_info = token.get("userinfo")
+        token = None
+        while not token:
+            try:
+                token = await google_auth.authorize_access_token(request)
+            except Exception as e:
+                logger.exception(f"Error getting access token: {e}")
+                await asyncio.sleep(1)  # wait for 1 second before trying again
+
+        try:
+            user_info = token.get("userinfo")
+        except Exception as e:
+            logger.exception(f"Error getting user info: {e}")
+            return JSONResponse(
+                status_code=400, content={"message": "Error getting user info"}
+            )
         if user_info:
             request.session["user"] = dict(user_info)
             user_found = self.__user_service.check_user_exists(
@@ -100,7 +118,8 @@ class AuthServiceImpl(AuthService):
                     )
 
             else:
-                user = UserUpdate(
+
+                user_created_with_google = UserGoogle(
                     email=user_info["email"],
                     display_name=user_info["name"],
                     password=user_info["at_hash"],
@@ -108,7 +127,9 @@ class AuthServiceImpl(AuthService):
                     is_verified=False,
                 )
 
-                new_user = self.__user_service.create(db=db, user=user)
+                new_user = self.__user_service.create(
+                    db=db, user=user_created_with_google
+                )
 
                 token_data = self.__session_service.create_session(
                     db=db, user_id=str(new_user.id), expires_at=datetime.now()
@@ -119,29 +140,43 @@ class AuthServiceImpl(AuthService):
                 return RedirectResponse(
                     url="https://raw.githubusercontent.com/DNAnh01/assets/main/02.1.%20Sign%20up%20-%20Success.png"
                 )
+
     def sign_out(self, db: Session, token: str) -> Response:
         try:
             self.__session_service.remove(db=db, token=token)
-            return JSONResponse(status_code=200, content={"message": "Sign out successful"})
+            return JSONResponse(
+                status_code=200, content={"message": "Sign out successful"}
+            )
         except NoResultFound:
-            raise HTTPException(status_code=404, detail="Sign out failed: Invalid token")
-        
-    async def forgot_password(self, db: Session, email: str)-> Response:
+            raise HTTPException(
+                logger.exception(f"Invalid token: {token}"),
+                status_code=404, detail="Sign out failed: Invalid token"
+            )
+
+    async def forgot_password(self, db: Session, email: str) -> Response:
         # load user by email
         user = await self.__user_service.load_user(db, email)
         if not user:
             logger.exception(f"User not found: {email}")
             raise HTTPException(status_code=400, detail="User not found")
         reset_password = generate_random_string(32)
-        self.__user_service.update(db, user.id, UserUpdate(email=user.email ,password=reset_password))
-        reset_password_token = oauth2.create_access_token(data={"user_id": str(user.id)})
-        self.__session_service.create(db=db,
-                                    session=SessionCreate(
-                                        token=reset_password_token, 
-                                        user_id=str(user.id),
-                                        expires_at=utils.get_expires_at()
-                                    ))
-        await self.__email_service.send_reset_password_email(email=user.email, token=reset_password_token, db=db)
+        self.__user_service.update(
+            db, user.id, UserUpdate(email=user.email, password=reset_password)
+        )
+        reset_password_token = oauth2.create_access_token(
+            data={"user_id": str(user.id)}
+        )
+        self.__session_service.create(
+            db=db,
+            session=SessionCreate(
+                token=reset_password_token,
+                user_id=str(user.id),
+                expires_at=utils.get_expires_at(),
+            ),
+        )
+        await self.__email_service.send_reset_password_email(
+            email=user.email, token=reset_password_token, db=db
+        )
         return {"message": "Reset password email sent"}
 
     async def reset_password(self, db: Session, token: str) -> Token:
@@ -149,6 +184,7 @@ class AuthServiceImpl(AuthService):
         if not user:
             logger.exception(f"User not found: {token}")
             raise HTTPException(status_code=400, detail="User not found")
-        self.__user_service.update(db,
-                                    user.id, UserUpdate(email=user.email, is_verified=True))
+        self.__user_service.update(
+            db, user.id, UserUpdate(email=user.email, is_verified=True)
+        )
         return Token(access_token=token, token_type="bearer")

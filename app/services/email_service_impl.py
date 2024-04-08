@@ -1,8 +1,10 @@
 from fastapi_mail import FastMail, MessageSchema
 from sqlalchemy.orm import Session
 
-from app.common.email_template import (email_forgot_password_template,
-                                       email_verify_template)
+from app.common.email_template import (
+    email_forgot_password_template,
+    email_verify_template,
+)
 from app.core.email_connection import conf
 from app.services.email_service import EmailService
 from app.services.user_service_impl import UserServiceImpl
@@ -28,7 +30,7 @@ class EmailServiceImpl(EmailService):
         user_info = await self.__user_service.load_user(db=db, email=email)
         if not user_info:
             return {"message": "User not found"}
-        
+
         user_name = user_info.display_name
 
         # Create FastMail instance
@@ -38,7 +40,7 @@ class EmailServiceImpl(EmailService):
         message = MessageSchema(
             subject="Reset Password for Ally AI",
             recipients=[email],
-            body=email_forgot_password_template(name=user_name,token= token),
+            body=email_forgot_password_template(name=user_name, token=token),
             subtype="html",
         )
 

@@ -49,6 +49,11 @@ class UserUpdate(UserBase):
     is_verified: Optional[bool] = None
     user_role: Optional[str] = None
 
+
+class UserGoogle(UserUpdate):
+    pass
+
+
 class UserResetRequest(UserBase):
     token: str
     password: str

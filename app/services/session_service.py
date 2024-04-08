@@ -7,7 +7,7 @@ from sqlalchemy.orm import Session
 from app.schemas.session import SessionCreate, SessionOut, SessionUpdate
 
 
-class SessionService:
+class SessionService(ABC):
 
     @abstractmethod
     def create(self, db: Session, session: SessionCreate) -> SessionOut:

@@ -37,11 +37,11 @@ class SessionServiceImpl(SessionService):
     def update_expires_at(
         self, db: Session, token: str, expires_at: datetime
     ) -> SessionOut:
-        
+
         session = self.__crud_session.get_one_by_or_fail(db, {"token": token})
         return self.__crud_session.update(
             db, db_obj=session, obj_in={"expires_at": expires_at}
         )
-    
+
     def remove(self, db: Session, token: str) -> SessionOut:
         return self.__crud_session.remove_by_token(db, token)

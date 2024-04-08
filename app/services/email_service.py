@@ -11,6 +11,3 @@ class EmailService(ABC):
     @abstractmethod
     async def send_reset_password_email(email: str, token: str, db: Session):
         pass
-
-
-    

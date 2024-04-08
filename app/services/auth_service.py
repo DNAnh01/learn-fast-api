@@ -1,7 +1,6 @@
 from abc import ABC, abstractmethod
 
 from fastapi import Response
-from fastapi.responses import RedirectResponse
 from sqlalchemy.orm import Session
 from starlette.requests import Request
 
@@ -32,9 +31,8 @@ class AuthService(ABC):
         pass
 
     @abstractmethod
-    async def forgot_password(self, db: Session, email: str)-> Response:
+    async def forgot_password(self, db: Session, email: str) -> Response:
         pass
-        
 
     @abstractmethod
     async def reset_password(self, db: Session, token: str, password: str) -> Token:

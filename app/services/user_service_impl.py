@@ -1,11 +1,11 @@
-import uuid
+from typing import Optional
 
 from sqlalchemy.orm import Session
 
 from app.common.logger import setup_logger
-from app.core import oauth2
 from app.crud.crud_user import crud_user
-from app.schemas.user import UserCreate, UserGoogle, UserInDB, UserOut, UserUpdate
+from app.schemas.user import (UserCreate, UserInDB, UserOut,
+                              UserSignInWithGoogle, UserUpdate)
 from app.services.user_service import UserService
 
 logger = setup_logger()
@@ -17,49 +17,105 @@ class UserServiceImpl(UserService):
         self.__crud_user = crud_user
 
     def create(self, db: Session, user: UserCreate) -> UserOut:
-        return self.__crud_user.create(db, obj_in=user)
-
-    def create_user_with_google(self, db: Session, user: UserGoogle) -> UserOut:
-        return self.__crud_user.create(db, obj_in=user)
-
-    def get_by_id(self, db: Session, id: uuid.UUID) -> UserOut:
-        return self.__crud_user.get_one_by_or_fail(db, {"id": id})
-
-    def get_by_email_or_fail(self, db: Session, email: str) -> UserOut:
-        return self.__crud_user.get_one_by_or_fail(db, {"email": email})
-
-    def check_user_exists(self, db: Session, email: str) -> bool:
+        user_found = self.get_one_with_filter_or_none(
+            db=db, filter={"email": user.email}
+        )
+        if user_found is not None:
+            return user_found
         try:
-            self.__crud_user.get_one_by_or_fail(db, {"email": email})
-            return True
-        except:
-            return False
-
-    def get_details_by_email(self, db: Session, email: str) -> UserInDB:
-        return self.__crud_user.get_one_by_or_fail(db, {"email": email})
-
-    async def load_user(self, db: Session, email: str) -> UserInDB:
-        try:
-            user = self.get_details_by_email(db, email)
+            user_created = self.__crud_user.create(db=db, obj_in=user)
         except Exception as user_exec:
-            logger.info(f"User not found, Email: {email}")
-            logger.error(user_exec)
-            user = None
-        return user
+            logger.error(
+                f"Error in {__name__}.{self.__class__.__name__}.create: {user_exec}"
+            )
+            raise user_exec
+        if user_created:
+            result: UserOut = UserOut(**user_created.__dict__)
+        return result
 
-    def update_is_verified(self, db: Session, email: str) -> UserOut:
-        user = self.__crud_user.get_one_by_or_fail(db, {"email": email})
-        return self.__crud_user.update(db, db_obj=user, obj_in={"is_verified": True})
-
-    def update(self, db: Session, id: uuid.UUID, user: UserUpdate) -> UserOut:
-        user_found = self.get_by_id(db, id)
-        return self.__crud_user.update(db, db_obj=user_found, obj_in=user)
-
-    async def load_user_by_token(self, db: Session, token: str) -> UserInDB:
+    def get_one_with_filter_or_fail(self, db: Session, filter: dict) -> UserOut:
         try:
-            current_user = oauth2.get_current_user(db=db, token=token)
-            user = self.get_details_by_email(db, current_user.email)
+            user_found = self.__crud_user.get_one_by_or_fail(db=db, filter=filter)
         except Exception as user_exec:
-            logger.info(f"User not found, Token: {token}")
-            user = None
-        return user
+            logger.error(
+                f"Error in {__name__}.{self.__class__.__name__}.get_one_with_filter: {user_exec}"
+            )
+            raise user_exec
+        if user_found:
+            result: UserOut = UserOut(**user_found.__dict__)
+        return result
+
+    def get_one_with_filter_or_none(
+        self, db: Session, filter: dict
+    ) -> Optional[UserOut]:
+        user_found = self.__crud_user.get_one_by(db=db, filter=filter)
+        if user_found:
+            result: UserOut = UserOut(**user_found.__dict__)
+            return result
+        return None
+
+    def get_one_with_filter_or_none(
+        self, db: Session, filter: dict
+    ) -> Optional[UserInDB]:
+        user_found = self.__crud_user.get_one_by(db=db, filter=filter)
+        if user_found:
+            result: UserInDB = UserInDB(**user_found.__dict__)
+            return result
+        return None
+
+    def update_one_with_filter(
+        self, db: Session, filter: dict, user: UserUpdate
+    ) -> UserOut:
+        try:
+            user_updated = self.__crud_user.update_one_by(
+                db=db, filter=filter, obj_in=user
+            )
+        except Exception as user_exec:
+            logger.error(
+                f"Error in {__name__}.{self.__class__.__name__}.update_one_with_filter: {user_exec}"
+            )
+            raise user_exec
+        if user_updated:
+            result: UserOut = UserOut(**user_updated.__dict__)
+        return result
+
+    def create_user_with_google(
+        self, db: Session, user: UserSignInWithGoogle
+    ) -> UserOut:
+        user_found = self.get_one_with_filter_or_none(
+            db=db, filter={"email": user.email}
+        )
+
+        if user_found is not None:
+            return user_found
+        
+
+        try:
+            user_created = self.__crud_user.create(db=db, obj_in=UserCreate(
+                email=user.email,
+                password_hash=user.password_hash,
+            ))
+            user_updated = self.__crud_user.update_one_by(
+                db=db,
+                filter={"id": user_created.id},
+                obj_in=UserUpdate(
+                    email=user.email, 
+                    password_hash=user.password_hash,
+                    display_name=user.display_name,
+                    avatar_url=user.avatar_url,
+                    is_verified=user.is_verified,
+                    is_active=user.is_active,
+                    created_at=user.created_at,
+                    updated_at=user.updated_at,
+                    deleted_at=user.deleted_at,
+                    user_role=user.user_role,
+                )
+            )
+        except Exception as user_exec:
+            logger.error(
+                f"Error in {__name__}.{self.__class__.__name__}.create_user_with_google: {user_exec}"
+            )
+            raise user_exec
+        if user_created:
+            result: UserOut = UserOut(**user_updated.__dict__)
+        return result

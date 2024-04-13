@@ -1,0 +1,67 @@
+Monthly:
+    Free:
+        0.0 USD per month
+        GPT-3.5-Turbo LLM
+        30 message credits
+        1 Chatbot
+        200.000 characters per chatbot
+        Embed on unlimited websites
+        Upload multiple files
+    
+    Entry:
+        30.0 USD per month
+        GPT-4 LLM
+        2.000 message credits
+        3 chatbot
+        800.000 characters per chatbot
+        plus:
+            Upload websites
+            Save conversations
+            Share conversations
+            Edit knowledge base
+
+    Premium:
+        90.0 USD per month
+        GPT-4 LLM
+        6.000 message credits
+        5 chatbot
+        2.000.000 characters per chatbot
+        plus:
+            Remove 'Powered by Ally AI'
+            Upload images
+            API Access
+            Chatbot white-labeling
+
+Yearly:
+    Free:
+        0.0 USD per month
+        GPT-3.5-Turbo LLM
+        30 message credits
+        1 chatbot
+        200.000 characters per chatbot
+        Embed on unlimited websites
+        Upload multiple files
+
+    Entry:
+        25.0 USD per month
+        GPT-4 LLM
+        2.000 message credits
+        3 chatbot
+        800.000 characters per chatbot
+        plus:
+            Upload websites
+            Save conversations
+            Share conversations
+            Edit knowledge base
+
+    Premium:
+        75.0 USD per month
+        GPT-4 LLM
+        6.000 message credits
+        5 chatbot
+        2.000.000 characters per chatbot
+        plus:
+            Remove 'Powered by Ally AI'
+            Upload images
+            API Access
+            Chatbot white-labeling

@@ -97,6 +97,24 @@ def get_current_user(db: Session, token: str = Depends(oauth2_scheme)) -> UserOu
     token_data = verify_access_token(token, credentials_exception)
     user = user_service.get_by_id(db, token_data.id)
     if user is None:
-        logger.error("User not found")
+        logger.error(f"Error in {__name__}.get_current_user: User not found")
         raise credentials_exception
     return user
+
+
+def get_current_admin_user(
+    current_user: UserOut = Depends(get_current_user),
+) -> UserOut:
+    """
+    Get the current user from the access token and check if the user is an admin.
+
+    Parameters:
+    db (Session): The database session.
+    current_user (UserModel): The current user model.
+
+    Returns:
+    UserModel: The current user model if the user is an admin.
+    """
+    if current_user.user_role != "admin":
+        raise HTTPException(status_code=400, detail="Not enough permissions")
+    return current_user

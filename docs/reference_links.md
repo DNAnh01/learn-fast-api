@@ -13,3 +13,5 @@
 ##### [Repo: Implement Google Sign-In](https://github.com/amoprocedures/fastapi-with-google-oauth/tree/master)
 
 ##### [Repo: Implement Reset Password](https://github.com/Describly/fastapi-tdd-user-authentication/blob/main/app/templates/user/password-reset.html)
+
+##### [Blog: Role Based Access Control (RBAC)](https://mysql.tutorials24x7.com/blog/guide-to-design-database-for-rbac-in-mysql)

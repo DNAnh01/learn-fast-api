@@ -1,6 +1,5 @@
-import uuid
 from abc import ABC, abstractmethod
-from datetime import datetime
+from typing import Optional
 
 from sqlalchemy.orm import Session
 
@@ -14,27 +13,21 @@ class SessionService(ABC):
         pass
 
     @abstractmethod
-    def create_session(self, db: Session, user_id: str, expires_at: datetime):
+    def get_one_with_filter_or_fail(self, db: Session, filter: dict) -> SessionOut:
         pass
 
     @abstractmethod
-    def get_by_id(self, db: Session, id: uuid.UUID) -> SessionOut:
+    def get_one_with_filter_or_none(
+        self, db: Session, filter: dict
+    ) -> Optional[SessionOut]:
         pass
 
     @abstractmethod
-    def get_by_token(self, db: Session, token: str) -> SessionOut:
-        pass
-
-    @abstractmethod
-    def update(self, db: Session, session: SessionUpdate) -> SessionOut:
-        pass
-
-    @abstractmethod
-    def update_expires_at(
-        self, db: Session, token: str, expires_at: datetime
+    def update_one_with_filter(
+        self, db: Session, filter: dict, session: SessionUpdate
     ) -> SessionOut:
         pass
 
     @abstractmethod
-    def remove(self, db: Session, token: str) -> SessionOut:
+    def remove_one_with_filter(self, db: Session, filter: dict) -> SessionOut:
         pass

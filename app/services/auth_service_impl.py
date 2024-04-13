@@ -115,17 +115,18 @@ class AuthServiceImpl(AuthService):
 
     def verify_user(self, db: Session, token: str) -> Token:
         current_user = oauth2.get_current_user(db=db, token=token)
-        self.__user_service.update_one_with_filter(
+
+        self.__user_service.update_is_verified(
             db=db,
-            filter={"email": current_user.email},
-            user=UserUpdate(
-                is_verified=True,
-            ),
+            email=current_user.email,
         )
         session_updated = self.__session_service.update_one_with_filter(
             db=db,
             filter={"token": token},
-            session=SessionUpdate(expires_at=utils.get_expires_at()),
+            session=SessionUpdate(
+                token=token,
+                expires_at=utils.get_expires_at(),
+                updated_at=datetime.now())
         )
         return Token(access_token=session_updated.token, token_type="bearer")
 

@@ -3,13 +3,8 @@ from typing import Optional
 
 from sqlalchemy.orm import Session
 
-from app.schemas.user import (
-    UserCreate,
-    UserInDB,
-    UserOut,
-    UserSignInWithGoogle,
-    UserUpdate,
-)
+from app.schemas.user import (UserCreate, UserInDB, UserOut,
+                              UserSignInWithGoogle, UserUpdate)
 
 
 class UserService(ABC):
@@ -44,4 +39,8 @@ class UserService(ABC):
     def create_user_with_google(
         self, db: Session, user: UserSignInWithGoogle
     ) -> UserOut:
+        pass
+
+    @abstractmethod
+    def update_is_verified(self, db: Session, email: str) -> UserOut:
         pass

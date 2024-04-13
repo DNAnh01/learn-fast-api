@@ -79,6 +79,9 @@ class UserServiceImpl(UserService):
             result: UserOut = UserOut(**user_updated.__dict__)
         return result
 
+
+
+
     def create_user_with_google(
         self, db: Session, user: UserSignInWithGoogle
     ) -> UserOut:
@@ -119,3 +122,7 @@ class UserServiceImpl(UserService):
         if user_created:
             result: UserOut = UserOut(**user_updated.__dict__)
         return result
+    
+    def update_is_verified(self, db: Session, email: str) -> UserOut:
+        user = self.__crud_user.get_one_by_or_fail(db, {"email": email})
+        return self.__crud_user.update(db, db_obj=user, obj_in={"is_verified": True})

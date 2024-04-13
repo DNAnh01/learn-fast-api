@@ -95,7 +95,9 @@ def get_current_user(db: Session, token: str = Depends(oauth2_scheme)) -> UserOu
         headers={"WWW-Authenticate": "Bearer"},
     )
     token_data = verify_access_token(token, credentials_exception)
-    user = user_service.get_by_id(db, token_data.id)
+
+    # user = user_service.get_by_id(db, token_data.id)
+    user = user_service.get_one_with_filter_or_none(db, {"id": token_data.id})
     if user is None:
         logger.error(f"Error in {__name__}.get_current_user: User not found")
         raise credentials_exception

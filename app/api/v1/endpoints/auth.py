@@ -46,12 +46,12 @@ async def callback(
 
 
 @router.get("/verification")
-async def verification(
+def verification(
     token: str,
     auth_service: AuthServiceImpl = Depends(),
     db: Session = Depends(deps.get_db),
 ):
-    return await auth_service.verify_user(db=db, token=token)
+    return auth_service.verify_user(db=db, token=token)
 
 
 @router.post("/sign-out", status_code=status.HTTP_200_OK)

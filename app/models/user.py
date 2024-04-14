@@ -19,4 +19,5 @@ class User(Base):
     user_role = Column(String, nullable=False, default="user")
 
     sessions = relationship("Session", back_populates="user")
+    chatbots = relationship("ChatBot", back_populates="user")
     subscriptions = relationship("UserSubscription", back_populates="user")

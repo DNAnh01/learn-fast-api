@@ -76,7 +76,6 @@ python-http-client==3.3.7
 python-jose==3.3.0
 python-multipart==0.0.9
 python-slugify==8.0.4
-pywin32==306
 PyYAML==6.0.1
 pyzmq==25.1.2
 requests==2.31.0

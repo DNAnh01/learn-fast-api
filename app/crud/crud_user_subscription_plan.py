@@ -67,12 +67,7 @@ class CRUDUserSubscriptionPlan:
                         .Builder() \
                             .with_u_id(result_dict[usp.U_ID]) \
                             .with_u_email(result_dict[usp.U_EMAIL]) \
-                            .with_u_display_name(result_dict[usp.U_DISPLAY_NAME]) \
                             .with_us_expire_at(result_dict[usp.US_EXPIRE_AT]) \
-                            .with_us_created_at(result_dict[usp.US_CREATED_AT]) \
-                            .with_us_updated_at(result_dict[usp.US_UPDATED_AT]) \
-                            .with_us_is_active(result_dict[usp.US_IS_ACTIVE]) \
-                            .with_us_deleted_at(result_dict[usp.US_DELETED_AT]) \
                             .with_sp_plan_title(result_dict[usp.SP_PLAN_TITLE]) \
                             .with_sp_plan_price(result_dict[usp.SP_PLAN_PRICE]) \
                             .with_sp_available_model(result_dict[usp.SP_AVAILABLE_MODEL]) \
@@ -81,10 +76,6 @@ class CRUDUserSubscriptionPlan:
                             .with_sp_max_character_per_chatbot(result_dict[usp.SP_MAX_CHARACTER_PER_CHATBOT]) \
                             .with_sp_live_agent_takeover(result_dict[usp.SP_LIVE_AGENT_TAKEOVER]) \
                             .with_sp_remove_label(result_dict[usp.SP_REMOVE_LABEL]) \
-                            .with_sp_created_at(result_dict[usp.SP_CREATED_AT]) \
-                            .with_sp_updated_at(result_dict[usp.SP_UPDATED_AT]) \
-                            .with_sp_is_active(result_dict[usp.SP_IS_ACTIVE]) \
-                            .with_sp_deleted_at(result_dict[usp.SP_DELETED_AT]) \
                         .build()
         else:
             return None

@@ -1,8 +1,10 @@
 from fastapi_mail import FastMail, MessageSchema
 from sqlalchemy.orm import Session
 
-from app.common.email_template import (email_forgot_password_template,
-                                       email_verify_template)
+from app.common.email_template import (
+    email_forgot_password_template,
+    email_verify_template,
+)
 from app.common.logger import setup_logger
 from app.core.email_connection import conf
 from app.schemas.user import UserOut

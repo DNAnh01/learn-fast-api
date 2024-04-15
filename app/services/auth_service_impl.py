@@ -14,17 +14,22 @@ from app.common.logger import setup_logger
 from app.core import google_auth, oauth2
 from app.schemas.session import SessionCreate, SessionUpdate
 from app.schemas.token import Token
-from app.schemas.user import (UserCreate, UserInDB, UserOut, UserSignIn,
-                              UserSignInWithGoogle, UserSignUp, UserUpdate)
+from app.schemas.user import (
+    UserCreate,
+    UserInDB,
+    UserOut,
+    UserSignIn,
+    UserSignInWithGoogle,
+    UserSignUp,
+    UserUpdate,
+)
 from app.schemas.user_subscription import UserSubscriptionCreate
 from app.services.auth_service import AuthService
 from app.services.email_service_impl import EmailServiceImpl
 from app.services.session_service_impl import SessionServiceImpl
-from app.services.subscription_plan_service_impl import \
-    SubscriptionPlanServiceImpl
+from app.services.subscription_plan_service_impl import SubscriptionPlanServiceImpl
 from app.services.user_service_impl import UserServiceImpl
-from app.services.user_subscription_service_impl import \
-    UserSubscriptionServiceImpl
+from app.services.user_subscription_service_impl import UserSubscriptionServiceImpl
 
 logger = setup_logger()
 
@@ -126,7 +131,8 @@ class AuthServiceImpl(AuthService):
             session=SessionUpdate(
                 token=token,
                 expires_at=utils.get_expires_at(),
-                updated_at=datetime.now())
+                updated_at=datetime.now(),
+            ),
         )
         return Token(access_token=session_updated.token, token_type="bearer")
 

@@ -3,8 +3,13 @@ from typing import Optional
 
 from sqlalchemy.orm import Session
 
-from app.schemas.user import (UserCreate, UserInDB, UserOut,
-                              UserSignInWithGoogle, UserUpdate)
+from app.schemas.user import (
+    UserCreate,
+    UserInDB,
+    UserOut,
+    UserSignInWithGoogle,
+    UserUpdate,
+)
 
 
 class UserService(ABC):

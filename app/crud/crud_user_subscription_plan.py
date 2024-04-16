@@ -10,10 +10,7 @@ from app.schemas.user_subscription_plan import UserSubscriptionPlan
 
 logger = setup_logger()
 
-
-class CRUDUserSubscriptionPlan:
-    def get_user_subscription_plan(self, db: Session, user_id: uuid.UUID) -> Optional[UserSubscriptionPlan]:
-        SQL_QUERY = f"""
+GET_USER_MEMBERSHIP_INFO = f"""
             SELECT 
                 u.id AS {usp.U_ID}, 
                 u.email AS {usp.U_EMAIL}, 
@@ -56,7 +53,11 @@ class CRUDUserSubscriptionPlan:
             AND us.deleted_at IS NULL 
             AND sp.deleted_at IS NULL;
             """
-        result_proxy = db.execute(text(SQL_QUERY), {"user_id": user_id})
+
+class CRUDUserSubscriptionPlan:
+    def get_user_membership_info(self, db: Session, user_id: uuid.UUID) -> Optional[UserSubscriptionPlan]:
+        
+        result_proxy = db.execute(text(GET_USER_MEMBERSHIP_INFO), {"user_id": user_id})
         column_names = result_proxy.keys()
         result = result_proxy.fetchone()
         # logger.info(f"result: {result}")

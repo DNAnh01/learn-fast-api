@@ -6,6 +6,7 @@ from starlette.requests import Request
 
 from app.schemas.token import Token
 from app.schemas.user import UserOut, UserSignIn, UserSignUp
+from app.schemas.user_subscription_plan import UserSubscriptionPlan
 
 
 class AuthService(ABC):
@@ -23,7 +24,7 @@ class AuthService(ABC):
         pass
 
     @abstractmethod
-    async def create_session(self, db: Session, user_id: str):
+    def create_session(self, db: Session, user_id: str):
         pass
 
     @abstractmethod
@@ -41,3 +42,9 @@ class AuthService(ABC):
     @abstractmethod
     async def reset_password(self, db: Session, token: str) -> Token:
         pass
+
+    @abstractmethod
+    def get_user_membership_info_by_token(self, db: Session, token: str) -> UserSubscriptionPlan:
+        pass
+
+

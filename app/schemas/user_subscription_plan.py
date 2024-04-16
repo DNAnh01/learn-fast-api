@@ -228,8 +228,15 @@ class UserSubscriptionPlan:
         return hash(self.__u_id)  # Hash based on unique property
 
     def __str__(self):
-        non_none_fields = {k: v for k, v in self.__dict__.items() if v is not None}
-        formatted_fields = json.dumps(non_none_fields, default=str, indent=4)
+        def default(o):
+            if isinstance(o, uuid.UUID):
+                return str(o)
+            elif isinstance(o, datetime.datetime):
+                return o.isoformat()
+            return o
+
+        non_none_fields = {k.replace('_Builder__', ''): v for k, v in self.__dict__.items() if v is not None}
+        formatted_fields = json.dumps(non_none_fields, default=default, indent=4)
         return f'UserSubscriptionPlan(\n{formatted_fields}\n)'
 
     # Getters and Setters

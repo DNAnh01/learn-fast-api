@@ -5,6 +5,7 @@ from app.db.base_class import Base
 
 
 class User(Base):
+    print("Model")
     __tablename__ = "users"
     email = Column(String, unique=True, nullable=False)
     password_hash = Column(String, nullable=False)

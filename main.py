@@ -41,3 +41,6 @@ if settings.ENV == "development":
 
 # remove all unused imports and variables in the project
 # `autoflake --remove-all-unused-imports --remove-unused-variables --in-place --recursive .`
+
+# format all code in the project
+# `black .`

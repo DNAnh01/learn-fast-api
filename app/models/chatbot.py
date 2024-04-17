@@ -13,13 +13,15 @@ class ChatBot(Base):
     temperature = Column(Float, default=0.5)
     max_tokens = Column(Integer, default=100)
     is_default = Column(Boolean, default=True)
-    prompt = Column(String, default='You are a helpful assistant. The first prompt will be a long text,'
-                                        'and any messages that you get be regarding that. Please answer any '
-                                        'questions and requests having in mind the first prompt ')
+    prompt = Column(
+        String,
+        default="You are a helpful assistant. The first prompt will be a long text,"
+        "and any messages that you get be regarding that. Please answer any "
+        "questions and requests having in mind the first prompt ",
+    )
     user_id = Column(
         UUID(as_uuid=True), ForeignKey("users.id", ondelete="CASCADE"), nullable=False
     )
 
     user = relationship("User", back_populates="chatbots")
     # knowledgebase = relationship("knowledgeBase", back_populates="chatbot")
-

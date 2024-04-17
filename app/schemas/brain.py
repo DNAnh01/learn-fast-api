@@ -4,12 +4,12 @@ from typing import Optional
 from pydantic import BaseModel
 
 
-class ChatBotBase(BaseModel):
+class BrainBase(BaseModel):
     user_id: uuid.UUID
 
 
-class ChatBotCreate(ChatBotBase):
-    chatbot_name: str
+class BrainCreate(BrainBase):
+    brain_name: str
     model: str
     description: str
     temperature: float
@@ -18,8 +18,8 @@ class ChatBotCreate(ChatBotBase):
     prompt: str
 
 
-class ChatBotUpdate(ChatBotBase):
-    chatbot_name: Optional[str] = None
+class BrainUpdate(BrainBase):
+    brain_name: Optional[str] = None
     model: Optional[str] = None
     description: Optional[str] = None
     temperature: Optional[float] = None
@@ -28,8 +28,8 @@ class ChatBotUpdate(ChatBotBase):
     prompt: Optional[str] = None
 
 
-class ChatBotOut(ChatBotBase):
-    chatbot_name: str
+class BrainOut(BrainBase):
+    brain_name: str
     model: str
     description: str
     temperature: float

@@ -3,15 +3,20 @@ from typing import Optional
 
 from sqlalchemy.orm import Session
 
-from app.schemas.user import (UserCreate, UserInDB, UserOut,
-                              UserSignInWithGoogle, UserUpdate)
+from app.schemas.user import (
+    UserCreate,
+    UserInDB,
+    UserOut,
+    UserSignInWithGoogle,
+    UserUpdate,
+)
 
 
 class UserService(ABC):
 
     @abstractmethod
     def create(self, db: Session, user: UserCreate) -> UserOut:
-        pass
+        print("???")
 
     @abstractmethod
     def get_one_with_filter_or_fail(self, db: Session, filter: dict) -> UserOut:

@@ -1,10 +1,7 @@
 import uuid
-from datetime import datetime
 from typing import Optional
 
 from pydantic import BaseModel
-from sqlalchemy import Boolean, Column, DateTime, String
-from sqlalchemy.dialects.postgresql.base import UUID
 
 
 class ChatBotBase(BaseModel):
@@ -20,6 +17,7 @@ class ChatBotCreate(ChatBotBase):
     is_default: bool
     prompt: str
 
+
 class ChatBotUpdate(ChatBotBase):
     chatbot_name: Optional[str] = None
     model: Optional[str] = None
@@ -28,6 +26,7 @@ class ChatBotUpdate(ChatBotBase):
     max_tokens: Optional[int] = None
     is_default: Optional[bool] = None
     prompt: Optional[str] = None
+
 
 class ChatBotOut(ChatBotBase):
     chatbot_name: str
@@ -40,6 +39,7 @@ class ChatBotOut(ChatBotBase):
 
     class Config:
         orm_mode = True
+
 
 #
 # class BrainInDB:

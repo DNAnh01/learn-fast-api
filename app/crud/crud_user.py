@@ -4,7 +4,7 @@ from app.schemas.user import UserCreate, UserUpdate
 
 
 class CRUDUser(CRUDBase[User, UserCreate, UserUpdate]):
-    pass
+    print("CRUD")
 
 
 crud_user = CRUDUser(User)

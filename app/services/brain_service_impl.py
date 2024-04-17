@@ -1,4 +1,3 @@
-import uuid
 
 from sqlalchemy.orm import Session
 from app.crud.crud_brain import crud_brain

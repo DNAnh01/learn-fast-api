@@ -7,15 +7,28 @@ from pydantic import BaseModel
 
 class SessionBase(BaseModel):
     token: str
-    expires_at: Optional[datetime]
+    expires_at: datetime
+
+    created_at: Optional[datetime]
+    updated_at: Optional[datetime]
+    is_active: Optional[bool]
+    deleted_at: Optional[datetime]
+
 
 
 class SessionCreate(SessionBase):
     user_id: uuid.UUID
 
 
-class SessionOut(SessionBase):
+
+class SessionOut(BaseModel):
     id: uuid.UUID
+    token: str
+    expires_at: datetime
+
+    user_id: uuid.UUID
+
+    is_active: bool
     created_at: datetime
     updated_at: datetime
     deleted_at: Optional[datetime]
@@ -24,6 +37,21 @@ class SessionOut(SessionBase):
         orm_mode = True
 
 
-class SessionUpdate(SessionBase):
-    token: Optional[str] = None
-    expires_at: Optional[datetime] = None
+class SessionInDB(BaseModel):
+    id: uuid.UUID
+    token: str
+    expires_at: datetime
+
+    user_id: uuid.UUID
+
+    is_active: bool
+    created_at: datetime
+    updated_at: datetime
+    deleted_at: Optional[datetime]
+
+
+class SessionUpdate(BaseModel):
+    token: Optional[str]
+    expires_at: Optional[datetime]
+
+    updated_at: Optional[datetime]

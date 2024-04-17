@@ -1,9 +1,15 @@
-import uuid
 from abc import ABC, abstractmethod
+from typing import Optional
 
 from sqlalchemy.orm import Session
 
-from app.schemas.user import UserCreate, UserInDB, UserOut
+from app.schemas.user import (
+    UserCreate,
+    UserInDB,
+    UserOut,
+    UserSignInWithGoogle,
+    UserUpdate,
+)
 
 
 class UserService(ABC):
@@ -11,22 +17,33 @@ class UserService(ABC):
     @abstractmethod
     def create(self, db: Session, user: UserCreate) -> UserOut:
         print("???")
+
+    @abstractmethod
+    def get_one_with_filter_or_fail(self, db: Session, filter: dict) -> UserOut:
         pass
 
     @abstractmethod
-    def get_by_id(self, db: Session, id: uuid.UUID) -> UserOut:
+    def get_one_with_filter_or_none(
+        self, db: Session, filter: dict
+    ) -> Optional[UserOut]:
         pass
 
     @abstractmethod
-    def get_by_email_or_fail(self, db: Session, email: str) -> UserOut:
+    def get_one_with_filter_or_none(
+        self, db: Session, filter: dict
+    ) -> Optional[UserInDB]:
         pass
 
     @abstractmethod
-    def check_user_exists(self, db: Session, email: str) -> bool:
+    def update_one_with_filter(
+        self, db: Session, filter: dict, user: UserUpdate
+    ) -> UserOut:
         pass
 
     @abstractmethod
-    def get_details_by_email(self, db: Session, email: str) -> UserInDB:
+    def create_user_with_google(
+        self, db: Session, user: UserSignInWithGoogle
+    ) -> UserOut:
         pass
 
     @abstractmethod

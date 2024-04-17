@@ -3,48 +3,77 @@ from datetime import datetime
 from typing import Optional
 
 from pydantic import BaseModel, EmailStr
-from sqlalchemy import Boolean, Column, DateTime, String
-from sqlalchemy.dialects.postgresql.base import UUID
 
 
 class UserBase(BaseModel):
     email: EmailStr
+    created_at: Optional[datetime] = None
+    updated_at: Optional[datetime] = None
+    is_active: Optional[bool] = None
+    deleted_at: Optional[datetime] = None
+
+
+class UserSignUp(BaseModel):
+    email: EmailStr
+    password: str
 
 
 class UserCreate(UserBase):
-    print("Schemas")
+    password_hash: str
+
+
+class UserSignIn(BaseModel):
+    email: EmailStr
     password: str
 
 
-class UserLogin(UserBase):
-    password: str
+class UserSignInWithGoogle(UserBase):
+    password_hash: Optional[str]
+    display_name: Optional[str]
+    avatar_url: Optional[str]
+    is_verified: Optional[bool]
+    user_role: Optional[str]
 
 
-class UserOut(UserBase):
+class UserUpdate(UserBase):
+    password_hash: Optional[str]
+    display_name: Optional[str]
+    avatar_url: Optional[str]
+    is_verified: Optional[bool]
+    user_role: Optional[str]
+
+    updated_at: Optional[datetime]
+
+
+class UserOut(BaseModel):
     id: uuid.UUID
+    email: EmailStr
+    display_name: str
+    avatar_url: str
+    payment_information: Optional[str]
+    is_verified: bool
+    user_role: str
+
+    is_active: bool
     created_at: datetime
+    updated_at: datetime
+    deleted_at: Optional[datetime]
 
     class Config:
         orm_mode = True
 
 
-class UserInDB:
+class UserInDB(BaseModel):
     id: uuid.UUID
-    email: String
-    password: String
-    display_name: String
-    avatar_url: String
-    created_at: DateTime
-    updated_at: DateTime
-    user_role: String
-    is_verified: Boolean
-    is_active: Boolean
-    deleted_at: Optional[DateTime]
+    email: EmailStr
+    password_hash: str
+    display_name: str
+    avatar_url: str
+    payment_information: Optional[str]
+    is_verified: bool
+    user_role: str
 
-
-class UserUpdate(UserBase):
-    password: Optional[str] = None
-    display_name: Optional[str] = None
-    avatar_url: Optional[str] = None
-    is_verified: Optional[bool] = None
-    user_role: Optional[str] = None
+    is_active: bool
+    created_at: datetime
+    updated_at: datetime
+    deleted_at: Optional[datetime]

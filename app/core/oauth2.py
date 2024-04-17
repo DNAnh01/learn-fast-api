@@ -6,11 +6,14 @@ from fastapi.security import OAuth2PasswordBearer
 from jose import JWTError, jwt
 from sqlalchemy.orm import Session
 
+from app.common.logger import setup_logger
 from app.core.config import settings
 from app.schemas.token import TokenData
 from app.schemas.user import UserOut
 from app.services.user_service import UserService
 from app.services.user_service_impl import UserServiceImpl
+
+logger = setup_logger()
 
 user_service: UserService = UserServiceImpl()
 
@@ -61,12 +64,14 @@ def verify_access_token(token: str, credentials_exception: HTTPException) -> Tok
 
         # If the id is None, raise the credentials exception
         if id is None:
+            logger.error("User id is None")
             raise credentials_exception
 
         # Create a TokenData instance with the id
         token_data = TokenData(id=id)
     except JWTError:
         # If there is a JWTError while decoding, raise the credentials exception
+        logger.error("JWTError while decoding token")
         raise credentials_exception
 
     # Return the token data
@@ -90,7 +95,28 @@ def get_current_user(db: Session, token: str = Depends(oauth2_scheme)) -> UserOu
         headers={"WWW-Authenticate": "Bearer"},
     )
     token_data = verify_access_token(token, credentials_exception)
-    user = user_service.get_by_id(db, token_data.id)
+
+    # user = user_service.get_by_id(db, token_data.id)
+    user = user_service.get_one_with_filter_or_none(db, {"id": token_data.id})
     if user is None:
+        logger.error(f"Error in {__name__}.get_current_user: User not found")
         raise credentials_exception
     return user
+
+
+def get_current_admin_user(
+    current_user: UserOut = Depends(get_current_user),
+) -> UserOut:
+    """
+    Get the current user from the access token and check if the user is an admin.
+
+    Parameters:
+    db (Session): The database session.
+    current_user (UserModel): The current user model.
+
+    Returns:
+    UserModel: The current user model if the user is an admin.
+    """
+    if current_user.user_role != "admin":
+        raise HTTPException(status_code=400, detail="Not enough permissions")
+    return current_user

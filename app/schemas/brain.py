@@ -1,10 +1,7 @@
 import uuid
-from datetime import datetime
 from typing import Optional
 
 from pydantic import BaseModel
-from sqlalchemy import Boolean, Column, DateTime, String
-from sqlalchemy.dialects.postgresql.base import UUID
 
 
 class BrainBase(BaseModel):

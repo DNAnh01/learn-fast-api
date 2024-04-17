@@ -2,6 +2,7 @@ from datetime import datetime, timedelta
 from typing import List
 
 from passlib.context import CryptContext
+from sqlalchemy.orm import class_mapper
 
 from app.core.config import settings
 
@@ -81,3 +82,10 @@ def clone_model(model):
     if "id" in data:
         data.pop("id")
     return data
+
+
+def asdict(obj):
+    return dict(
+        (col.name, getattr(obj, col.name))
+        for col in class_mapper(obj.__class__).mapped_table.c
+    )

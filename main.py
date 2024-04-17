@@ -38,3 +38,6 @@ if settings.ENV == "development":
 
 # install all packages in requirements.txt
 # `pip install -r requirements.txt`
+
+# remove all unused imports and variables in the project
+# `autoflake --remove-all-unused-imports --remove-unused-variables --in-place --recursive .`

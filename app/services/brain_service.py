@@ -1,4 +1,3 @@
-import uuid
 from abc import ABC, abstractmethod
 
 from sqlalchemy.orm import Session

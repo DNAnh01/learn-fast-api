@@ -27,7 +27,8 @@ class Settings(BaseSettings):
     SQLALCHEMY_DATABASE_URI: Optional[PostgresDsn] = None
 
     ALGORITHM: str = os.environ.get("ALGORITHM")
-    ACCESS_TOKEN_EXPIRE_MINUTES: int = os.environ.get("ACCESS_TOKEN_EXPIRE_MINUTES")
+    ACCESS_TOKEN_EXPIRE_MINUTES: int = os.environ.get(
+        "ACCESS_TOKEN_EXPIRE_MINUTES")
 
     GOOGLE_CLIENT_ID: str = os.environ.get("GOOGLE_CLIENT_ID")
     GOOGLE_CLIENT_SECRET: str = os.environ.get("GOOGLE_CLIENT_SECRET")
@@ -52,6 +53,8 @@ class Settings(BaseSettings):
             port=info.data.get("POSTGRES_PORT"),
             path=info.data.get("POSTGRES_DB"),
         )
+
+    OPEN_API_KEY: str = os.environ.get("OPEN_API_KEY")
 
     class Config:
         case_sensitive = True

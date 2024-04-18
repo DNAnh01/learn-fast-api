@@ -2,6 +2,7 @@ from sqlalchemy import Boolean, Column, String
 from sqlalchemy.orm import relationship
 
 from app.db.base_class import Base
+from .chatbot import ChatBot
 
 
 class User(Base):
@@ -21,4 +22,5 @@ class User(Base):
 
     sessions = relationship("Session", back_populates="user")
     chatbots = relationship("ChatBot", back_populates="user")
+    conversations = relationship("Conversation", back_populates="user")
     subscriptions = relationship("UserSubscription", back_populates="user")

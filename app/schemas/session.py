@@ -14,19 +14,11 @@ class SessionBase(BaseModel):
     is_active: Optional[bool]
     deleted_at: Optional[datetime]
 
-<<<<<<< HEAD
-=======
-
->>>>>>> feature/BrainManagement
 
 class SessionCreate(SessionBase):
     user_id: uuid.UUID
 
 
-<<<<<<< HEAD
-=======
-
->>>>>>> feature/BrainManagement
 class SessionOut(BaseModel):
     id: uuid.UUID
     token: str

@@ -14,6 +14,9 @@ class ChatBotServiceImpl(ChatBotService):
     def __init__(self):
         self.__crud_chatbot = crud_chatbot
         self.__session_service = SessionServiceImpl()
+        self.DEFAULT_PROMPT = "You are a helpful assistant. The first prompt will be a long text," \
+            "and any messages that you get be regarding that. Please answer any " \
+            "questions and requests having in mind the first prompt"
 
     def create(self, db: Session, chatbot: ChatBotCreate, token: str) -> ChatBotOut:
         try:
@@ -22,6 +25,7 @@ class ChatBotServiceImpl(ChatBotService):
             )
             # Need to check user's current number of chatbots and user's tier to determine if user can create chat bot
             chatbot.user_id = sessionInfo.user_id
+            chatbot.prompt = self.DEFAULT_PROMPT
             return self.__crud_chatbot.create(db, obj_in=chatbot)
         except:
             logger.exception(

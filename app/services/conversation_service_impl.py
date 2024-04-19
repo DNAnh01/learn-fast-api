@@ -233,7 +233,7 @@ class ConversationServiceImpl(ConversationService):
                 db=db,
                 message=MessageCreate(
                     conversation_id=conversation_id,
-                    sender_id=sessionInfo.user_id,
+                    sender_id=chatbot.id,
                     sender_type="system",
                     message=complete_respone,
                     sent_at=datetime.datetime.now(),

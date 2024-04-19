@@ -1,53 +1,85 @@
-from fastapi import APIRouter, Depends, status, HTTPException
+from typing import List, Optional
+
+from fastapi import APIRouter, Depends, HTTPException, status
 from sqlalchemy.orm import Session
 
 from app.api import deps
-from app.models.session import Session
-from app.schemas.chatbot import ChatBotCreate, ChatBotUpdate, ChatBotOut
+from app.core import oauth2
+from app.schemas.chatbot import ChatBotCreate, ChatBotOut, ChatBotUpdate
+from app.schemas.user_subscription_plan import UserSubscriptionPlan
+from app.services.chatbot_service import ChatBotService
 from app.services.chatbot_service_impl import ChatBotServiceImpl
-from app.crud.crud_chatbot import crud_chatbot
 
 router = APIRouter()
+chatbot_service: ChatBotService = ChatBotServiceImpl(),
 
-# auth_service = AuthServiceImpl()
-chatbot_service = ChatBotServiceImpl()
-# session_service = SessionServiceImpl()
-
-
-# Below are routes for /chatbot
 
 
 @router.post("/", status_code=status.HTTP_201_CREATED, response_model=ChatBotOut)
 def create(
-    token: str, chatbot_create: ChatBotCreate, db: Session = Depends(deps.get_db)
+    chatbot_create: ChatBotCreate,
+    current_user_membership: UserSubscriptionPlan = Depends(oauth2.get_current_user_membership_info_by_token),
+    db: Session = Depends(deps.get_db)
 ) -> ChatBotOut:
-    new_brain = chatbot_service.create(db=db, chatbot=chatbot_create, token=token)
-    return new_brain
+    
+    """
+        UserSubscriptionPlan(
+            {
+                "_Builder__u_id": "a7e47b5d-33c1-4cde-9176-be00b6319314",
+                "_Builder__u_email": "donguyenanh2k1@gmail.com",
+                "_Builder__us_expire_at": "2024-05-17 03:44:02.664871+07:00",
+                "_Builder__sp_plan_title": "monthly_free",
+                "_Builder__sp_plan_price": 0.0,
+                "_Builder__sp_available_model": "GPT-3.5-Turbo LLM",
+                "_Builder__sp_message_credits": 30,
+                "_Builder__sp_number_of_chatbots": 1,
+                "_Builder__sp_max_character_per_chatbot": 200000,
+                "_Builder__sp_live_agent_takeover": false,
+                "_Builder__sp_remove_label": false
+            }
+        )
+    """
+    chatbot_created: ChatBotOut = chatbot_service.create(
+        db=db,
+        chatbot_create=chatbot_create,
+        current_user_membership=current_user_membership
+    )
+    return chatbot_created
+
+
+
+
+@router.get("/get_all", status_code=status.HTTP_200_OK, response_model=Optional[List[ChatBotOut]])
+def get_all(
+    current_user_membership: UserSubscriptionPlan = Depends(oauth2.get_current_user_membership_info_by_token),
+    db: Session = Depends(deps.get_db)
+) -> Optional[List[ChatBotOut]]:
+    chatbots = chatbot_service.get_all_or_none(db=db, current_user_membership=current_user_membership)
+    return chatbots
+
+
+@router.get("/{chatbot_id}", status_code=status.HTTP_200_OK, response_model=Optional[ChatBotOut])
+def get_one(
+    chatbot_id: str,
+    current_user_membership: UserSubscriptionPlan = Depends(oauth2.get_current_user_membership_info_by_token),
+    db: Session = Depends(deps.get_db)
+) -> Optional[ChatBotOut]:
+    chatbot = chatbot_service.get_one_with_filter_or_none(db=db, current_user_membership=current_user_membership, filter={"id": chatbot_id})
+    if chatbot is None:
+        raise HTTPException(status_code=404, detail="Chatbot not found")
+    return chatbot
 
 
 @router.put(
     "/edit/{chatbot_id}", status_code=status.HTTP_200_OK, response_model=ChatBotOut
 )
 def update(
-    token: str,
     chatbot_id: str,
     chatbot_update: ChatBotUpdate,
-    db: Session = Depends(deps.get_db),
+    current_user_membership: UserSubscriptionPlan = Depends(oauth2.get_current_user_membership_info_by_token),
+    db: Session = Depends(deps.get_db)
 ) -> ChatBotOut:
-    existing_chatbot = chatbot_service.get(db, token=token, chatbot_id=chatbot_id)
-    if not existing_chatbot:
-        raise HTTPException(status_code=404, detail="Chatbot not found")
-    updated_chatbot = crud_chatbot.update(
-        db, db_obj=existing_chatbot, obj_in=chatbot_update
-    )
+    updated_chatbot = chatbot_service.update_one_with_filter(db=db, chatbot_update=chatbot_update, current_user_membership=current_user_membership, filter={"id": chatbot_id})
     return updated_chatbot
 
 
-@router.get(
-    "/get/{chatbot_id}", status_code=status.HTTP_200_OK, response_model=ChatBotOut
-)
-def get(token: str, chatbot_id: str, db: Session = Depends(deps.get_db)) -> ChatBotOut:
-    existing_chatbot = chatbot_service.get(db, token=token, chatbot_id=chatbot_id)
-    if not existing_chatbot:
-        raise HTTPException(status_code=404, detail="Chatbot not found")
-    return existing_chatbot

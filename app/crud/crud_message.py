@@ -1,9 +1,8 @@
 from app.crud.base import CRUDBase
 from app.models.message import Message
-from app.schemas.message import MessageCreate, MessageUpdate, MessageOut
+from app.schemas.message import MessageCreate, MessageUpdate
 from sqlalchemy.orm import Session
 from sqlalchemy import asc
-from typing import Optional
 
 import uuid as UUID
 

@@ -1,14 +1,14 @@
+from fastapi import Depends
 from fastapi_mail import FastMail, MessageSchema
 from sqlalchemy.orm import Session
 
-from app.common.email_template import (
-    email_forgot_password_template,
-    email_verify_template,
-)
+from app.common.email_template import (email_forgot_password_template,
+                                       email_verify_template)
 from app.common.logger import setup_logger
 from app.core.email_connection import conf
 from app.schemas.user import UserOut
 from app.services.email_service import EmailService
+from app.services.user_service import UserService
 from app.services.user_service_impl import UserServiceImpl
 
 logger = setup_logger()
@@ -17,7 +17,7 @@ logger = setup_logger()
 class EmailServiceImpl(EmailService):
     def __init__(self):
         self.__conf = conf
-        self.__user_service = UserServiceImpl()
+        self.__user_service: UserService = UserServiceImpl()
 
     async def send_verification_email(self, user_info: dict, access_token: str):
         fm = FastMail(self.__conf)

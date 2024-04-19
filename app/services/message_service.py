@@ -1,6 +1,5 @@
 from abc import ABC, abstractmethod
-from typing import Optional
-from app.schemas.message import MessageCreate, MessageUpdate, MessageOut, MessageCollectionOut
+from app.schemas.message import MessageCreate, MessageOut, MessageCollectionOut
 from sqlalchemy.orm import Session
 
 from uuid import UUID

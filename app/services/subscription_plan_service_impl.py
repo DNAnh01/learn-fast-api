@@ -4,11 +4,9 @@ from sqlalchemy.orm import Session
 
 from app.common.logger import setup_logger
 from app.crud.crud_subscription_plan import crud_subscription_plan
-from app.schemas.subscription_plan import (
-    SubscriptionPlanCreate,
-    SubscriptionPlanOut,
-    SubscriptionPlanUpdate,
-)
+from app.schemas.subscription_plan import (SubscriptionPlanCreate,
+                                           SubscriptionPlanOut,
+                                           SubscriptionPlanUpdate)
 from app.services.subscription_plan_service import SubscriptionPlanService
 
 logger = setup_logger()
@@ -23,7 +21,7 @@ class SubscriptionPlanServiceImpl(SubscriptionPlanService):
         self, db: Session, subscription_plan: SubscriptionPlanCreate
     ) -> SubscriptionPlanOut:
         subscription_plan_found = self.get_one_with_filter_or_none(
-            db=db, filter={"name": subscription_plan.name}
+            db=db, filter={"plan_title": subscription_plan.plan_title}
         )
         if subscription_plan_found is not None:
             return subscription_plan_found

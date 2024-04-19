@@ -16,4 +16,4 @@ class Message(Base):
     message = Column(String)
     sent_at = Column(DateTime)
 
-    conversations = relationship("Conversation", back_populates="messages")
+    conversation = relationship("Conversation", back_populates="messages")

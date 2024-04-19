@@ -2,7 +2,7 @@ import asyncio
 import uuid
 from datetime import datetime
 
-from fastapi import HTTPException, Response, status
+from fastapi import Depends, HTTPException, Response, status
 from fastapi.responses import JSONResponse, RedirectResponse
 from sqlalchemy.orm import Session
 from sqlalchemy.orm.exc import NoResultFound
@@ -12,25 +12,19 @@ from app.common import utils
 from app.common.generate import generate_random_string
 from app.common.logger import setup_logger
 from app.core import google_auth, oauth2
-from app.schemas.session import SessionCreate, SessionUpdate
 from app.schemas.token import Token
-from app.schemas.user import (
-    UserCreate,
-    UserInDB,
-    UserOut,
-    UserSignIn,
-    UserSignInWithGoogle,
-    UserSignUp,
-    UserUpdate,
-)
-from app.schemas.user_subscription_plan import UserSubscriptionPlan
+from app.schemas.user import (UserCreate, UserInDB, UserOut, UserSignIn,
+                              UserSignInWithGoogle, UserSignUp, UserUpdate)
+from app.schemas.user_session import UserSessionCreate, UserSessionUpdate
 from app.services.auth_service import AuthService
+from app.services.email_service import EmailService
 from app.services.email_service_impl import EmailServiceImpl
+from app.services.membership_service import MembershipService
 from app.services.membership_service_impl import MembershipServiceImpl
-from app.services.session_service_impl import SessionServiceImpl
-from app.services.subscription_plan_service_impl import SubscriptionPlanServiceImpl
+from app.services.user_service import UserService
 from app.services.user_service_impl import UserServiceImpl
-from app.services.user_subscription_service_impl import UserSubscriptionServiceImpl
+from app.services.user_session_service import UserSessionService
+from app.services.user_session_service_impl import UserSessionServiceImpl
 
 logger = setup_logger()
 
@@ -38,12 +32,10 @@ logger = setup_logger()
 class AuthServiceImpl(AuthService):
 
     def __init__(self) -> None:
-        self.__user_service = UserServiceImpl()
-        self.__session_service = SessionServiceImpl()
-        self.__email_service = EmailServiceImpl()
-        self.__user_subscription_service = UserSubscriptionServiceImpl()
-        self.__subscription_plan_service = SubscriptionPlanServiceImpl()
-        self.__membership_service = MembershipServiceImpl()
+        self.__user_service: UserService = UserServiceImpl()
+        self.__user_session_service: UserSessionService = UserSessionServiceImpl()
+        self.__email_service: EmailService = EmailServiceImpl()
+        self.__membership_service: MembershipService = MembershipServiceImpl()
 
     def sign_up(self, db: Session, user: UserSignUp) -> UserOut:
         hashed_password = utils.hash(user.password)
@@ -62,7 +54,7 @@ class AuthServiceImpl(AuthService):
         return new_user
 
     def sign_in(self, db: Session, user_credentials: UserSignIn) -> Token:
-        user_found: UserInDB = self.__user_service.get_one_with_filter_or_none(
+        user_found: UserInDB = self.__user_service.get_one_with_filter_or_none_db(
             db=db, filter={"email": user_credentials.email}
         )
         if user_found is None:
@@ -82,9 +74,9 @@ class AuthServiceImpl(AuthService):
         access_token: str = oauth2.create_access_token(
             data={"user_id": str(user_found.id)}
         )
-        token_data = self.__session_service.create(
+        user_session_created = self.__user_session_service.create(
             db=db,
-            session=SessionCreate(
+            session=UserSessionCreate(
                 token=access_token,
                 user_id=user_found.id,
                 is_active=True,
@@ -94,7 +86,7 @@ class AuthServiceImpl(AuthService):
                 expires_at=utils.get_expires_at(),
             ),
         )
-        return Token(access_token=token_data.token, token_type="bearer")
+        return Token(access_token=user_session_created.token, token_type="bearer")
 
     def verify_user(self, db: Session, token: str) -> Token:
         current_user = oauth2.get_current_user(db=db, token=token)
@@ -103,22 +95,22 @@ class AuthServiceImpl(AuthService):
             db=db,
             email=current_user.email,
         )
-        session_updated = self.__session_service.update_one_with_filter(
+        user_session_updated = self.__user_session_service.update_one_with_filter(
             db=db,
             filter={"token": token},
-            session=SessionUpdate(
+            session=UserSessionUpdate(
                 token=token,
                 expires_at=utils.get_expires_at(),
                 updated_at=datetime.now(),
             ),
         )
-        return Token(access_token=session_updated.token, token_type="bearer")
+        return Token(access_token=user_session_updated.token, token_type="bearer")
 
     def create_session(self, db: Session, user_id: uuid.UUID):
         access_token = oauth2.create_access_token(data={"user_id": str(user_id)})
-        session_created = self.__session_service.create(
+        user_session_created = self.__user_session_service.create(
             db=db,
-            session=SessionCreate(
+            session=UserSessionCreate(
                 token=access_token,
                 user_id=user_id,
                 is_active=True,
@@ -128,7 +120,7 @@ class AuthServiceImpl(AuthService):
                 expires_at=utils.get_expires_at(),
             ),
         )
-        return session_created
+        return user_session_created
 
     async def handle_google_callback(self, request: Request, db: Session):
         token = None
@@ -165,6 +157,7 @@ class AuthServiceImpl(AuthService):
                     return RedirectResponse(
                         url="https://raw.githubusercontent.com/DNAnh01/assets/main/02.1.%20Sign%20up%20-%20Success.png"
                     )
+                
                 return Token(access_token=session_created.token, token_type="bearer")
             else:
                 user_created_with_google = UserSignInWithGoogle(
@@ -194,10 +187,12 @@ class AuthServiceImpl(AuthService):
                 return RedirectResponse(
                     url="https://raw.githubusercontent.com/DNAnh01/assets/main/02.1.%20Sign%20up%20-%20Success.png"
                 )
+            
+            
 
     def sign_out(self, db: Session, token: str) -> Response:
         try:
-            self.__session_service.remove_one_with_filter(
+            self.__user_session_service.remove_one_with_filter(
                 db=db, filter={"token": token}
             )
             return JSONResponse(
@@ -229,12 +224,12 @@ class AuthServiceImpl(AuthService):
         return {"message": "Reset password email sent"}
 
     async def reset_password(self, db: Session, token: str) -> Token:
-        session_found = self.__session_service.get_one_with_filter_or_none(
+        user_session_found = self.__user_session_service.get_one_with_filter_or_none(
             db=db, filter={"token": token}
         )
 
         user_found = self.__user_service.get_one_with_filter_or_none(
-            db=db, filter={"id": session_found.user_id}
+            db=db, filter={"id": user_session_found.user_id}
         )
 
         if user_found is None:
@@ -250,12 +245,4 @@ class AuthServiceImpl(AuthService):
             filter={"id": user_found.id},
             user=UserUpdate(password_hash=utils.hash(reset_password), is_verified=True),
         )
-        return Token(access_token=session_found.token, token_type="bearer")
-
-    def get_user_membership_info_by_token(
-        self, db: Session, token: str
-    ) -> UserSubscriptionPlan:
-        current_user = oauth2.get_current_user(db=db, token=token)
-        return self.__membership_service.get_user_membership_by_user_id(
-            db=db, user_id=current_user.id
-        )
+        return Token(access_token=user_session_found.token, token_type="bearer")

@@ -5,7 +5,7 @@ from typing import Optional
 from pydantic import BaseModel
 
 
-class SessionBase(BaseModel):
+class UserSessionBase(BaseModel):
     token: str
     expires_at: datetime
 
@@ -15,11 +15,11 @@ class SessionBase(BaseModel):
     deleted_at: Optional[datetime]
 
 
-class SessionCreate(SessionBase):
+class UserSessionCreate(UserSessionBase):
     user_id: uuid.UUID
 
 
-class SessionOut(BaseModel):
+class UserSessionOut(BaseModel):
     id: uuid.UUID
     token: str
     expires_at: datetime
@@ -35,7 +35,7 @@ class SessionOut(BaseModel):
         orm_mode = True
 
 
-class SessionInDB(BaseModel):
+class UserSessionInDB(BaseModel):
     id: uuid.UUID
     token: str
     expires_at: datetime
@@ -48,7 +48,7 @@ class SessionInDB(BaseModel):
     deleted_at: Optional[datetime]
 
 
-class SessionUpdate(BaseModel):
+class UserSessionUpdate(BaseModel):
     token: Optional[str]
     expires_at: Optional[datetime]
 

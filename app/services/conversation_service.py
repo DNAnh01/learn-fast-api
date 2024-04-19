@@ -1,15 +1,15 @@
+import uuid
 from abc import ABC, abstractmethod
 
 from sqlalchemy.orm import Session
-from app.schemas.token import Token
 
-from app.models.conversation import Conversation
-from app.schemas.conversation import ConversationCreate, ConversationUpdate, ConversationOut
-from app.crud.crud_conversation import crud_conversation
+from app.schemas.conversation import ConversationCreate, ConversationOut
+from app.schemas.user_subscription_plan import UserSubscriptionPlan
 
 
 class ConversationService(ABC):
 
     @abstractmethod
-    def create(self, db: Session, conversation: ConversationCreate, token: str) -> ConversationOut:
+    def create(self, db: Session, conversation_create: ConversationCreate, chatbot_id: uuid.UUID,  current_user_membership: UserSubscriptionPlan) -> ConversationOut:
         pass
+

@@ -8,7 +8,7 @@ class ChatBotBase(BaseModel):
     user_id: uuid.UUID
 
 
-class ChatBotCreate(ChatBotBase):
+class ChatBotCreate(BaseModel):
     chatbot_name: str
     model: str
     description: str
@@ -41,17 +41,14 @@ class ChatBotOut(ChatBotBase):
         orm_mode = True
 
 
-#
-# class BrainInDB:
-#     id: uuid.UUID
-#     email: String
-#     password: String
-#     display_name: String
-#     avatar_url: String
-#     created_at: DateTime
-#     updated_at: DateTime
-#     user_role: String
-#     is_verified: Boolean
-#     is_active: Boolean
-#     deleted_at: Optional[DateTime]
-#
+class ChatBotInDB(ChatBotBase):
+    chatbot_name: str
+    model: str
+    description: str
+    temperature: float
+    max_tokens: int
+    is_default: bool
+    prompt: str
+
+    class Config:
+        orm_mode = True

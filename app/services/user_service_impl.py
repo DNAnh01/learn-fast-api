@@ -4,13 +4,8 @@ from sqlalchemy.orm import Session
 
 from app.common.logger import setup_logger
 from app.crud.crud_user import crud_user
-from app.schemas.user import (
-    UserCreate,
-    UserInDB,
-    UserOut,
-    UserSignInWithGoogle,
-    UserUpdate,
-)
+from app.schemas.user import (UserCreate, UserInDB, UserOut,
+                              UserSignInWithGoogle, UserUpdate)
 from app.services.user_service import UserService
 
 logger = setup_logger()
@@ -59,7 +54,7 @@ class UserServiceImpl(UserService):
             return result
         return None
 
-    def get_one_with_filter_or_none(
+    def get_one_with_filter_or_none_db(
         self, db: Session, filter: dict
     ) -> Optional[UserInDB]:
         user_found = self.__crud_user.get_one_by(db=db, filter=filter)
@@ -130,3 +125,4 @@ class UserServiceImpl(UserService):
     def update_is_verified(self, db: Session, email: str) -> UserOut:
         user = self.__crud_user.get_one_by_or_fail(db, {"email": email})
         return self.__crud_user.update(db, db_obj=user, obj_in={"is_verified": True})
+

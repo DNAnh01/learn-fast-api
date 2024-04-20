@@ -22,23 +22,6 @@ def create(
     db: Session = Depends(deps.get_db)
 ) -> ChatBotOut:
     
-    """
-        UserSubscriptionPlan(
-            {
-                "_Builder__u_id": "a7e47b5d-33c1-4cde-9176-be00b6319314",
-                "_Builder__u_email": "donguyenanh2k1@gmail.com",
-                "_Builder__us_expire_at": "2024-05-17 03:44:02.664871+07:00",
-                "_Builder__sp_plan_title": "monthly_free",
-                "_Builder__sp_plan_price": 0.0,
-                "_Builder__sp_available_model": "GPT-3.5-Turbo LLM",
-                "_Builder__sp_message_credits": 30,
-                "_Builder__sp_number_of_chatbots": 1,
-                "_Builder__sp_max_character_per_chatbot": 200000,
-                "_Builder__sp_live_agent_takeover": false,
-                "_Builder__sp_remove_label": false
-            }
-        )
-    """
     chatbot_created: ChatBotOut = chatbot_service.create(
         db=db,
         chatbot_create=chatbot_create,

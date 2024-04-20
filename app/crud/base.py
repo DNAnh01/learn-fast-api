@@ -43,16 +43,16 @@ class CRUDBase(Generic[ModelType, CreateSchemaType, UpdateSchemaType]):
         query = query_builder(
             db=db,
             model=self.model,
-            filter=filter_param["filter"],
-            order_by=filter_param["order_by"],
-            include=filter_param["include"],
-            join=filter_param["join"],
+            filter=filter_param.get('filter'),
+            order_by=filter_param.get("order_by"),
+            include=filter_param.get("include"),
+            join=filter_param.get("join"),
         )
         query = query.filter(self.model.deleted_at == None)
         return {
             "total": get_count(query),
-            "results": query.offset(filter_param["skip"])
-            .limit(filter_param["limit"])
+            "results": query.offset(filter_param.get("skip"))
+            .limit(filter_param.get("limit"))
             .all(),
         }
 

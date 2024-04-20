@@ -11,7 +11,7 @@ from app.services.chatbot_service import ChatBotService
 from app.services.chatbot_service_impl import ChatBotServiceImpl
 
 router = APIRouter()
-chatbot_service: ChatBotService = ChatBotServiceImpl(),
+chatbot_service: ChatBotService = ChatBotServiceImpl()
 
 
 

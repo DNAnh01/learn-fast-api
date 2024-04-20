@@ -1,6 +1,6 @@
 import json
 import uuid
-from datetime import datetime
+import datetime
 from typing import Optional
 
 
@@ -241,7 +241,7 @@ class UserSubscriptionPlan:
             if v is not None
         }
         formatted_fields = json.dumps(non_none_fields, default=default, indent=4)
-        return f"UserSubscriptionPlan(\n{formatted_fields}\n)"
+        return f"{formatted_fields}"
 
     # Getters and Setters
     @property

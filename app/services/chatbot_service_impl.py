@@ -1,3 +1,4 @@
+import json
 from typing import List, Optional
 
 from fastapi import Depends, HTTPException
@@ -29,18 +30,18 @@ class ChatBotServiceImpl(ChatBotService):
     def create(self, db: Session, chatbot_create: ChatBotCreate, current_user_membership: UserSubscriptionPlan) -> ChatBotOut:
         # check if user has reached the limit of chatbots
         chatbots = self.get_all_or_none(db=db, current_user_membership=current_user_membership)
-        if chatbots is not None and len(chatbots) >= current_user_membership.sp_number_of_chatbots:
+        current_user_membership = json.loads(str(current_user_membership))
+        if chatbots is not None and len(chatbots) >= current_user_membership['sp_number_of_chatbots']:
             logger.exception(
                 f"Exception in {__name__}.{self.__class__.__name__}.create_chatbot: User has reached the limit of chatbots"
             )
             raise HTTPException(
                 detail="Create Chatbot failed: User has reached the limit of chatbots", status_code=400
             )
-
         chatbot_in_db: ChatBotInDB = ChatBotInDB(
                                 **chatbot_create.__dict__, 
-                                user_id=current_user_membership.u_id,
-                                prompt=self.DEFAULT_PROMPT)
+                                user_id=current_user_membership['u_id'])
+                                # prompt=self.DEFAULT_PROMPT)
         
         logger.info(f"ChatbotInDB: {chatbot_in_db}")
 
@@ -60,7 +61,7 @@ class ChatBotServiceImpl(ChatBotService):
 
     def get_all_or_none(self, db: Session, current_user_membership: UserSubscriptionPlan) -> Optional[List[ChatBotOut]]:
         try:
-            return self.__crud_chatbot.get_multi(db=db, filter={"user_id": current_user_membership.u_id})
+            return self.__crud_chatbot.get_multi(db=db, filter_param={"user_id": current_user_membership.u_id})
         except:
             logger.exception(
                 f"Exception in {__name__}.{self.__class__.__name__}.get_all_or_none"

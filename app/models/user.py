@@ -17,6 +17,6 @@ class User(Base):
     payment_information = Column(String, nullable=True)
     is_verified = Column(Boolean, default=False, nullable=False)
     user_role = Column(String, nullable=False, default="user")
-
+    chatbots = relationship("ChatBot", back_populates="user")
     sessions = relationship("Session", back_populates="user")
     subscriptions = relationship("UserSubscription", back_populates="user")

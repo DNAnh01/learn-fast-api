@@ -29,6 +29,7 @@ class ChatBotUpdate(ChatBotBase):
 
 
 class ChatBotOut(ChatBotBase):
+    id: uuid.UUID
     chatbot_name: str
     model: str
     description: str

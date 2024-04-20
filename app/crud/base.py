@@ -35,10 +35,32 @@ class CRUDBase(Generic[ModelType, CreateSchemaType, UpdateSchemaType]):
             .first()
         )
 
+    # def get_multi(
+    #     self,
+    #     db: Session,
+    #     filter_param: dict = None,
+    # ) -> List[ModelType]:
+    #     query = query_builder(
+    #         db=db,
+    #         model=self.model,
+    #         filter=filter_param.get('filter'),
+    #         order_by=filter_param.get("order_by"),
+    #         include=filter_param.get("include"),
+    #         join=filter_param.get("join"),
+    #     )
+    #     query = query.filter(self.model.deleted_at == None)
+    #     return {
+    #         "total": get_count(query),
+    #         "results": query.offset(filter_param.get("skip"))
+    #         .limit(filter_param.get("limit"))
+    #         .all(),
+    #     }
+
+
     def get_multi(
-        self,
-        db: Session,
-        filter_param: dict = None,
+            self,
+            db: Session,
+            filter_param: dict = None,
     ) -> List[ModelType]:
         query = query_builder(
             db=db,
@@ -49,12 +71,19 @@ class CRUDBase(Generic[ModelType, CreateSchemaType, UpdateSchemaType]):
             join=filter_param.get("join"),
         )
         query = query.filter(self.model.deleted_at == None)
-        return {
-            "total": get_count(query),
-            "results": query.offset(filter_param.get("skip"))
-            .limit(filter_param.get("limit"))
-            .all(),
-        }
+        results = query.offset(filter_param.get("skip")).limit(filter_param.get("limit")).all()
+        total = get_count(query)
+        json_result = []
+        for result in results:
+            print(type(result.id))
+            item = {
+                'id': str(result.id),
+                'name': result.chatbot_name,
+                'model': result.model,
+                'description': result.description
+            }
+            json_result.append(item)
+        return {"total": total, "results": json_result}
 
     def get_multi_not_paging(
         self,

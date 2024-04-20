@@ -4,6 +4,7 @@ from sqlalchemy.orm import relationship
 
 from app.db.base_class import Base
 from app.models.conversation import Conversation
+from app.models.knowledge_base import KnowledgeBase
 
 
 class ChatBot(Base):
@@ -23,6 +24,6 @@ class ChatBot(Base):
     user_id = Column(
         UUID(as_uuid=True), ForeignKey("users.id", ondelete="CASCADE"), nullable=False
     )
-
+    knowledgebase = relationship("KnowledgeBase", back_populates="chatbot")
     conversations = relationship("Conversation", back_populates="chatbot")
     user = relationship("User", back_populates="chatbots")

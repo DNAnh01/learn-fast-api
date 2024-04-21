@@ -2,6 +2,7 @@ import datetime
 import json
 import os
 import traceback
+import uuid
 from typing import List, Optional
 
 from fastapi import Depends, HTTPException
@@ -41,8 +42,6 @@ class KnowledgeBaseService(object):
                 "file_size": os.path.getsize(file_path),
                 "chatbot_id": chatbot_id
             }
-            knowledge_base = KnowledgeBaseAdd(**knowledge_base_data)
-            print(knowledge_base)
             KN_created = self.__crud_knowledgeBase.create(db=db, obj_in=knowledge_base_data)
             if KN_created:
                 result: KnowledgeBaseOut = KnowledgeBaseOut(**KN_created.__dict__)
@@ -52,3 +51,15 @@ class KnowledgeBaseService(object):
             raise HTTPException(
                 detail="Add KnowledgeBase failed", status_code=400
             )
+
+    def get_knowledgeBase_by_chatbot_id(self, db: Session, chatbot_id: str) -> dict:
+        try:
+            chatbot_id = uuid.UUID(chatbot_id)
+            knowledgeBases = self.__crud_knowledgeBase.get_knowledgeBase_by_chatbot_id(
+                db, chatbot_id)
+            knowledgeBases_dict = [dict(**knowledgeBase.__dict__)
+                             for knowledgeBase in knowledgeBases]
+            return knowledgeBases_dict
+        except:
+            traceback.print_exc()
+            pass

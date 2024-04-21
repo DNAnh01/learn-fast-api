@@ -1,6 +1,6 @@
 from typing import List, Optional
 
-from fastapi import APIRouter, Depends, File, HTTPException, UploadFile, status
+from fastapi import APIRouter, Depends, File, HTTPException, UploadFile, status, Cookie, Request
 from sqlalchemy.orm import Session
 
 from app.api import deps
@@ -75,10 +75,24 @@ def add_knowledgeBase(
         file: UploadFile = File(...),
         db: Session = Depends(deps.get_db)
 ):
-    print(file.filename)
     file_path = f"KnowledgeBase/{chatbot_id}_{file.filename}"
     with open(file_path, "wb") as f:
         f.write(file.file.read())
     created_knowledgeBase = knowledgebase_service.create(db=db, chatbot_id=chatbot_id, file_path=file_path, file_name=file.filename)
     return created_knowledgeBase
+
+
+@router.post("/{chatbot_id}/message", status_code=status.HTTP_200_OK)
+def message_chatbot(
+        chatbot_id: str,
+        message: dict,
+        request: Request,
+        db: Session = Depends(deps.get_db),
+        current_user_membership: UserSubscriptionPlan = Depends(oauth2.get_current_user_membership_info_by_token),
+        conversation_id: str = Cookie(None)
+):
+    # client_ip = request.client.host
+    client_ip = "42.118.119.124"
+    response = chatbot_service.message(db=db, chatbot_id=chatbot_id, conversation_id=conversation_id, current_user_membership=current_user_membership, message=message['message'], client_ip=client_ip)
+    return response
 

@@ -10,11 +10,12 @@ import uuid as UUID
 class CRUDMessage(CRUDBase[Message, MessageCreate, MessageUpdate]):
     # Add a method to get messages by conversation_id
     def get_messages_by_conversation_id(self, db: Session, conversation_id: UUID):
-        return (db.query(Message)
+        result = (db.query(Message)
                 .filter(Message.conversation_id == conversation_id)
                 .filter(Message.deleted_at == None)
                 .order_by(asc(Message.created_at))
                 .all())
+        return result
 
 
 crud_message = CRUDMessage(Message)

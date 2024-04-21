@@ -1,3 +1,5 @@
+import traceback
+import uuid
 from uuid import UUID
 
 from fastapi import Depends, HTTPException
@@ -20,41 +22,33 @@ class MessageServiceImpl(MessageService):
         self.__user_session_service:UserSessionService = UserSessionServiceImpl()
 
 
-    # def create(self, db: Session, message: MessageCreate, token: str) -> MessageOut:
-    #     """Create a new message."""
+    def create(self, db: Session, message: MessageCreate) -> MessageOut:
+        """Create a new message."""
+        try:
+            return self.__crud_message.create(db, obj_in=message)
+        except:
+            logger.exception(
+                f"Exception in {__name__}.{self.__class__.__name__}.create_message: Invalid token: {token}"
+            ),
+            raise HTTPException(
+                detail="Create Message failed: Invalid token", status_code=401
+            )
 
-    #     try:
-    #         sessionInfo = self.__session_service.get_one_with_filter_or_none(
-    #             db=db, filter={"token": token}
-    #         )
-    #         return self.__crud_message.create(db, obj_in=message)
-    #     except:
-    #         logger.exception(
-    #             f"Exception in {__name__}.{self.__class__.__name__}.create_message: Invalid token: {token}"
-    #         ),
-    #         raise HTTPException(
-    #             detail="Create Message failed: Invalid token", status_code=401
-    #         )
+    def get_messages_by_conversation_id(self, db: Session, conversation_id: str) -> dict:
+        """Get chat session messages"""
+        try:
+            conversation_id = uuid.UUID(conversation_id)
+            messages = self.__crud_message.get_messages_by_conversation_id(
+                db, conversation_id)
+            # message_dicts = [MessageOut(**message.__dict__)
+            #                  for message in messages]
+            message_dicts = [dict(**message.__dict__)
+                             for message in messages]
+            # return MessageCollectionOut(messages=message_dicts)
+            return message_dicts
+        except:
+            traceback.print_exc()
+            pass
 
-    # def get_messages_by_conversation_id(self, db: Session, conversation_id: str, token: str) -> MessageCollectionOut:
-    #     """Get chat session messages"""
-    #     try:
-    #         sessionInfo = self.__session_service.get_one_with_filter_or_none(
-    #             db=db, filter={"token": token}
-    #         )
-    #         messages = self.__crud_message.get_messages_by_conversation_id(
-    #             db, conversation_id)
-    #         print(messages)
-    #         message_dicts = [MessageOut(**message.__dict__)
-    #                          for message in messages]
-    #         return MessageCollectionOut(messages=message_dicts)
-    #     except:
-    #         logger.exception(
-    #             f"Exception in {__name__}.{self.__class__.__name__}.get_message: Invalid token: {token}"
-    #         ),
-    #         raise HTTPException(
-    #             detail="Get Message failed: Invalid token", status_code=401
-    #         )
-
-    # def delete(self, db: Session, message_id: UUID, token: str):
-    #     """Delete chat session messages"""
+    def delete(self, db: Session, message_id: UUID, token: str):
+        """Delete chat session messages"""

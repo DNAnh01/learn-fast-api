@@ -22,7 +22,7 @@ class ConversationOut(ConversationBase):
     started_at: datetime
     ended_at: datetime
     rating_score: Optional[float]
-
+    conversation_name: str
     created_at: Optional[datetime]
     updated_at: Optional[datetime]
 

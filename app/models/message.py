@@ -11,9 +11,8 @@ class Message(Base):
     conversation_id = Column(
         UUID(as_uuid=True), ForeignKey("conversations.id", ondelete="CASCADE"), nullable=False
     )
-    sender_id = Column(UUID(as_uuid=True))
+    sender_id = Column(String)
     sender_type = Column(String)  # user or bot
     message = Column(String)
-    sent_at = Column(DateTime)
 
     conversation = relationship("Conversation", back_populates="messages")

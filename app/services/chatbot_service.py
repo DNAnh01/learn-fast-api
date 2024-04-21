@@ -5,6 +5,8 @@ from sqlalchemy.orm import Session
 
 from app.schemas.chatbot import ChatBotCreate, ChatBotOut, ChatBotUpdate
 from app.schemas.user_subscription_plan import UserSubscriptionPlan
+from app.schemas.conversation import ConversationCreate,ConversationUpdate,ConversationOut
+from app.schemas.message import MessageCreate,MessageUpdate,MessageOut
 
 
 class ChatBotService(ABC):
@@ -26,3 +28,14 @@ class ChatBotService(ABC):
     def update_one_with_filter(
         self, db: Session, chatbot_update: ChatBotUpdate, current_user_membership: UserSubscriptionPlan, filter: dict) -> ChatBotOut:
         pass
+
+    @abstractmethod
+    def message(
+            self, db: Session, chatbot_id: str, conversation_id: str, message: str, current_user_membership: UserSubscriptionPlan, client_ip: str) -> MessageOut:
+        pass
+
+    @abstractmethod
+    def handle_message(
+            self, db: Session, chatbot_id: str, conversation_id: str, message: str, current_user_membership: UserSubscriptionPlan) -> MessageOut:
+        pass
+

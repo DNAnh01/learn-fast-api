@@ -1,9 +1,12 @@
 import datetime
+import json
+import random
 import uuid
-from typing import Any, Generator
+from typing import Any, Generator, Optional
 from uuid import UUID
 
 import PyPDF2
+import requests
 from fastapi import Depends, HTTPException
 from openai import OpenAI
 from sqlalchemy.orm import Session
@@ -14,11 +17,11 @@ from app.crud.crud_conversation import crud_conversation
 from app.schemas.conversation import ConversationCreate, ConversationOut
 from app.schemas.message import MessageCreate
 from app.schemas.user_subscription_plan import UserSubscriptionPlan
-from app.services.chatbot_service import ChatBotService
-from app.services.chatbot_service_impl import ChatBotServiceImpl
+# from app.services.chatbot_service import ChatBotService
+# from app.services.chatbot_service_impl import ChatBotServiceImpl
 from app.services.conversation_service import ConversationService
-from app.services.message_service import MessageService
-from app.services.message_service_impl import MessageServiceImpl
+# from app.services.message_service import MessageService
+# from app.services.message_service_impl import MessageServiceImpl
 from app.services.user_session_service import UserSessionService
 from app.services.user_session_service_impl import UserSessionServiceImpl
 
@@ -29,8 +32,8 @@ class ConversationServiceImpl(ConversationService):
 
     def __init__(self):
         self.__crud_conversation = crud_conversation
-        self.__chatbot_service: ChatBotService = ChatBotServiceImpl()
-        self.__message_service: MessageService = MessageServiceImpl()
+        # self.__chatbot_service: ChatBotService = ChatBotServiceImpl()
+        # self.__message_service: MessageService = MessageServiceImpl()
         # self.__user_session_service: UserSessionService = UserSessionServiceImpl()
         self.client = OpenAI(api_key=settings.OPEN_API_KEY)
 
@@ -39,7 +42,6 @@ class ConversationServiceImpl(ConversationService):
         # join messages and conversations table to get the total number of message and compare with the max character per chatbot
         logger.info(f"current_user_membership: {current_user_membership}")
         try:
-
             conversation_create.user_id = current_user_membership.u_id
             conversation_create.chatbot_id = chatbot_id
 
@@ -52,12 +54,37 @@ class ConversationServiceImpl(ConversationService):
                 detail="Create Conversation failed: An error occurred", status_code=500
             )
 
+    def get_one_with_filter_or_none(self, db: Session, current_user_membership: UserSubscriptionPlan, filter: dict) -> Optional[ConversationOut]:
+        try:
+            return self.__crud_conversation.get_one_by(db=db, filter=filter)
+        except:
+            logger.exception(
+                f"Exception in {__name__}.{self.__class__.__name__}.get_one_with_filter_or_none"
+            )
+            return None
 
+    def check_conversation(self, db: Session, current_user_membership: UserSubscriptionPlan, conversation_id: str, chatbot_id: str, client_ip: str) -> ConversationOut:
+        try:
+            conversation = self.get_one_with_filter_or_none(db=db, filter={"id": conversation_id}, current_user_membership= current_user_membership)
+            if conversation is None:
+                client_info = json.loads(requests.get('http://ip-api.com/json/' + client_ip).text)
+                conversation_create = {
+                    "user_id": current_user_membership.u_id,
+                    "chatbot_id": chatbot_id,
+                    "conversation_name": client_info['countryCode'] + str(random.randint(100000000,999999999))
+                }
+                return self.__crud_conversation.create(db, obj_in=conversation_create)
+            else:
+                return conversation
+        except:
+            logger.exception(
+                f"Exception in {__name__}.{self.__class__.__name__}.check_conversation"
+            )
+            raise HTTPException(
+                detail="Check Conversation failed: An error occurred", status_code=500
+            )
 
-
-
-
-    # # ask question
+# # ask question
     # def conversation(self, db: Session, query: str, conversation_id: UUID, token: str):
     #     """Get answer from the chat completation."""
     #     try:

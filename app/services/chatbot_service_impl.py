@@ -1,7 +1,10 @@
 import json
+import traceback
 from typing import List, Optional
 
+import PyPDF2
 from fastapi import Depends, HTTPException
+from openai import OpenAI
 from sqlalchemy.orm import Session
 
 from app.common.logger import setup_logger
@@ -12,17 +15,40 @@ from app.schemas.user_subscription_plan import UserSubscriptionPlan
 from app.services.chatbot_service import ChatBotService
 from app.services.user_session_service import UserSessionService
 from app.services.user_session_service_impl import UserSessionServiceImpl
+from app.schemas.conversation import ConversationCreate,ConversationUpdate,ConversationOut
+from app.schemas.message import MessageCreate,MessageUpdate,MessageOut,MessageBase
+from app.crud.crud_conversation import crud_conversation
+from app.crud.crud_message import crud_message
+from app.services.conversation_service_impl import ConversationServiceImpl
+from app.services.conversation_service import ConversationService
+from app.services.message_service import MessageService
+from app.services.message_service_impl import MessageServiceImpl
+from app.crud.crud_message import crud_message
+from app.services.knowledgeBase_service import KnowledgeBaseService
+from app.core.config import settings
 
 logger = setup_logger()
 
+def read_pdf(file_path):
+    with open(file_path, 'rb') as file:
+        reader = PyPDF2.PdfReader(file)
+        num_pages = len(reader.pages)
+        text = ''
+        for page_num in range(num_pages):
+            page = reader.pages[page_num]
+            text += page.extract_text()
+    return text
 
 class ChatBotServiceImpl(ChatBotService):
 
     def __init__(self):
         self.__crud_chatbot = crud_chatbot
         self.__user_session_service: UserSessionService = UserSessionServiceImpl()
-
-        
+        self.__conversation_service: ConversationService = ConversationServiceImpl()
+        self.__crud_message_base = crud_message
+        self.__crud_message: MessageService = MessageServiceImpl()
+        self.__crud_knowledgeBase = KnowledgeBaseService()
+        self.client = OpenAI(api_key=settings.OPEN_API_KEY)
         self.DEFAULT_PROMPT = "You are a helpful assistant. The first prompt will be a long text," \
             "and any messages that you get be regarding that. Please answer any " \
             "questions and requests having in mind the first prompt"
@@ -98,3 +124,56 @@ class ChatBotServiceImpl(ChatBotService):
             raise HTTPException(
                 detail="Update Chatbot failed", status_code=400
             )
+
+    def message(
+            self, db: Session, chatbot_id: str, conversation_id: str, message: str, current_user_membership: UserSubscriptionPlan, client_ip: str) -> MessageOut:
+        try:
+            conversation = self.__conversation_service.check_conversation(db=db, current_user_membership=current_user_membership, conversation_id=conversation_id, chatbot_id=chatbot_id, client_ip=client_ip)
+            # Add message to Message
+            message_form = {
+                "sender_id": conversation.conversation_name,
+                "sender_type": "guest",
+                "message": message,
+                "conversation_id": conversation.id
+            }
+            add_message = self.__crud_message_base.create(db=db, obj_in=message_form)
+            # Handle response and add to Message
+            response, chatbot_name = self.handle_message(db=db, chatbot_id=chatbot_id, conversation_id=conversation_id, message=message,current_user_membership=current_user_membership)
+            message_form = {
+                "sender_id": chatbot_name,
+                "sender_type": "bot",
+                "message": response,
+                "conversation_id": conversation.id
+            }
+            add_message = self.__crud_message_base.create(db=db, obj_in=message_form)
+            return add_message
+        except:
+            traceback.print_exc()
+            pass
+
+    def handle_message(
+            self, db: Session, chatbot_id: str, conversation_id: str, message: str,
+            current_user_membership: UserSubscriptionPlan):
+        try:
+            temp_knowledgeBase = []
+            # Get old message from the current conversation
+            messages = self.__crud_message.get_messages_by_conversation_id(db=db, conversation_id=conversation_id)
+            # Get knowledgeBase from the current chatbot
+            knowledgeBases = self.__crud_knowledgeBase.get_knowledgeBase_by_chatbot_id(db=db, chatbot_id=chatbot_id)
+            # Get chatbot info (model)
+            chatbot = self.get_one_with_filter_or_none(db=db, current_user_membership=current_user_membership, filter={"id": chatbot_id})
+            # Create response
+            temp_knowledgeBase.append({'role': 'system', 'content': chatbot.prompt})
+            for knowledgeBase in knowledgeBases:
+                temp_knowledgeBase.append({'role': 'system', 'content': read_pdf(knowledgeBase['file_path'])})
+            for message in messages:
+                temp_knowledgeBase.append({'role': 'user', 'content': message['message']})
+            response = self.client.chat.completions.create(
+                model=chatbot.model,
+                messages=temp_knowledgeBase
+            )
+            response = response.choices[0].message.content
+            return response, chatbot.chatbot_name
+        except:
+            traceback.print_exc()
+            pass

@@ -7,11 +7,11 @@ from uuid import UUID
 
 class MessageService(ABC):
     @abstractmethod
-    def create(self, db: Session, message: MessageCreate, token: str) -> MessageOut:
+    def create(self, db: Session, message: MessageCreate) -> MessageOut:
         pass
 
     @abstractmethod
-    def get_messages_by_conversation_id(self, db: Session, conversation_id: str, token: str) -> MessageCollectionOut:
+    def get_messages_by_conversation_id(self, db: Session, conversation_id: str) -> dict:
         pass
 
     @abstractmethod

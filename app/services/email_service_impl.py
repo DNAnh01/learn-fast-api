@@ -19,12 +19,17 @@ class EmailServiceImpl(EmailService):
         self.__conf = conf
         self.__user_service: UserService = UserServiceImpl()
 
-    async def send_verification_email(self, user_info: dict, access_token: str):
+    async def send_verification_email(self, user_info: dict, redirect_url: str) -> bool:
         fm = FastMail(self.__conf)
+        mode = 1 if user_info["name"] == user_info["email"] else 2
         message = MessageSchema(
             subject="Verify Email Address for Ally AI",
             recipients=[user_info["email"]],
-            body=email_verify_template(user_info["name"], token=access_token),
+            body=email_verify_template(
+                user_name=user_info["name"],
+                redirect_url=redirect_url,
+                mode=mode,
+            ),
             subtype="html",
         )
         try:
@@ -36,7 +41,7 @@ class EmailServiceImpl(EmailService):
             )
             return False
 
-    async def send_reset_password_email(self, email: str, token: str, db: Session):
+    async def send_reset_password_email(self, email: str, password_reset: str, db: Session) -> bool:
         user_info: UserOut = self.__user_service.get_one_with_filter_or_none(
             db=db, filter={"email": email}
         )
@@ -45,7 +50,10 @@ class EmailServiceImpl(EmailService):
         message = MessageSchema(
             subject="Reset Password for Ally AI",
             recipients=[email],
-            body=email_forgot_password_template(name=user_name, token=token),
+            body=email_forgot_password_template(
+                user_name=user_name,
+                password_reset=password_reset,
+            ),
             subtype="html",
         )
         try:

@@ -1,4 +1,12 @@
-def email_verify_template(name: str, token: str) -> str:
+def email_verify_template(user_name: str, redirect_url: str, mode: int) -> str:
+    if mode == 1:
+        button_text = "Go to Landing Page"
+        button_style = "background-color: #2c2c2c; color: #ffffff; text-decoration: none; padding: 10px 20px; border-radius: 5px; font-size: 16px;"
+        button_link = redirect_url
+    elif mode == 2:
+        button_text = "Verify Email"
+        button_style = "background-color: #2c2c2c; color: #ffffff; text-decoration: none; padding: 10px 20px; border-radius: 5px; font-size: 16px;"
+        button_link = redirect_url
     return f"""
             <!DOCTYPE html>
                 <html lang="en">
@@ -22,7 +30,7 @@ def email_verify_template(name: str, token: str) -> str:
                                 <table border="0" cellpadding="0" cellspacing="0" width="100%">
                                     <tr>
                                         <td style="color: #153643; font-size: 28px;">
-                                            <b>Hey {name},</b>
+                                            <b>Hey {user_name},</b>
                                         </td>
                                     </tr>
                                     <tr>
@@ -33,9 +41,7 @@ def email_verify_template(name: str, token: str) -> str:
                                     </tr>
                                     <tr>
                                         <td style="text-align: center;">
-                                            <a href="http://localhost:8000/api/v1/auth/verification?token={token}"
-                                                style="background-color: #2c2c2c; color: #ffffff; text-decoration: none; padding: 10px 20px; border-radius: 5px; font-size: 16px;">Verify
-                                                Email</a>
+                                            <a href="{button_link}" style="{button_style}">{button_text}</a>
                                         </td>
                                     </tr>
                                 </table>
@@ -60,7 +66,7 @@ def email_verify_template(name: str, token: str) -> str:
             """
 
 
-def email_forgot_password_template(name: str, token: str) -> str:
+def email_forgot_password_template(user_name: str, password_reset: str) -> str:
     return f"""
             <!DOCTYPE html>
                 <html lang="en">
@@ -75,8 +81,8 @@ def email_forgot_password_template(name: str, token: str) -> str:
                     <table align="center" border="0" cellpadding="0" cellspacing="0" width="600">
                         <tr>
                             <td align="center">
-                                <img src="https://raw.githubusercontent.com/DNAnh01/assets/main/ally-ai-logo.png"
-                                    alt="Ally AI Logo" style="display: block; width: 200px; margin: 20px auto;">
+                                <img src="https://raw.githubusercontent.com/DNAnh01/assets/main/ally-ai-logo.png" alt="Ally AI Logo"
+                                    style="display: block; width: 200px; margin: 20px auto;">
                             </td>
                         </tr>
                         <tr>
@@ -84,20 +90,25 @@ def email_forgot_password_template(name: str, token: str) -> str:
                                 <table border="0" cellpadding="0" cellspacing="0" width="100%">
                                     <tr>
                                         <td style="color: #153643; font-size: 28px;">
-                                            <b>Hey {name},</b>
+                                            <b>Hey {user_name},</b>
                                         </td>
                                     </tr>
                                     <tr>
                                         <td style="padding: 20px 0 30px 0; color: #153643; font-size: 16px; line-height: 20px;">
-                                            We received a request to reset your password. Click the button below to reset your password:
+                                            We received a request to reset your password. Please follow the instructions below to reset
+                                            your password:
                                         </td>
                                     </tr>
                                     <tr>
-                                        <td style="text-align: center;">
-                                            <a href="http://localhost:8000/api/v1/auth/reset-password?token={token}"
-                                                style="background-color: #2c2c2c; color: #ffffff; text-decoration: none; padding: 10px 20px; border-radius: 5px; font-size: 16px;">Reset Password</a>
+                                        <td
+                                            style="padding: 20px 0 30px 0; color: #153643; font-size: 20px; line-height: 20px; text-align: center; font-weight: 600; display: flex; justify-content: center; align-items: center;">
+                                            <div
+                                                style="background-color: #eff2f4; border: 2px solid #2c2c2c; padding: 10px; border-radius: 5px; width: 40%; display: flex; justify-content: center; align-items: center;">
+                                                {password_reset}
+                                            </div>
                                         </td>
                                     </tr>
+
                                 </table>
                             </td>
                         </tr>

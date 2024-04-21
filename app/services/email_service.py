@@ -5,9 +5,9 @@ from sqlalchemy.orm import Session
 
 class EmailService(ABC):
     @abstractmethod
-    async def send_verification_email(user_info: dict, access_token: str):
+    async def send_verification_email(self, user_info: dict, redirect_url: str) -> bool:
         pass
 
     @abstractmethod
-    async def send_reset_password_email(email: str, token: str, db: Session):
+    async def send_reset_password_email(self, email: str, password_reset: str, db: Session) -> bool:
         pass

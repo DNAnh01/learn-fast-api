@@ -28,13 +28,11 @@ class ChatBotServiceImpl(ChatBotService):
             "questions and requests having in mind the first prompt"
         
     def create(self, db: Session, chatbot_create: ChatBotCreate, current_user_membership: UserSubscriptionPlan) -> ChatBotOut:
+        # logger.warning(f"{current_user_membership}")
         logger.warning(f"{current_user_membership}")
-        logger.warning(f"{current_user_membership.sp_number_of_chatbots}")
-
+        
         chatbots = self.get_all_or_none(db=db, current_user_membership=current_user_membership)
-
-
-        if chatbots is not None and len(chatbots) >= current_user_membership['sp_number_of_chatbots']:
+        if chatbots is not None and len(chatbots) >= current_user_membership.sp_number_of_chatbots:
             logger.exception(
                 f"Exception in {__name__}.{self.__class__.__name__}.create_chatbot: User has reached the limit of chatbots"
             )
@@ -43,7 +41,7 @@ class ChatBotServiceImpl(ChatBotService):
             )
         chatbot_in_db: ChatBotInDB = ChatBotInDB(
                                 **chatbot_create.__dict__, 
-                                user_id=current_user_membership['u_id'])
+                                user_id=current_user_membership.u_id)
                                 # prompt=self.DEFAULT_PROMPT)
         
         logger.info(f"ChatbotInDB: {chatbot_in_db}")

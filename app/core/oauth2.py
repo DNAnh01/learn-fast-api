@@ -84,7 +84,7 @@ def verify_access_token(token: str, credentials_exception: HTTPException) -> Tok
     return token_data
 
 
-def get_current_user(db: Session, token: str = Depends(oauth2_scheme)) -> UserOut:
+def get_current_user(db:Session = Depends(deps.get_db), token: str = Depends(oauth2_scheme)) -> UserOut:
     """
     Get the current user from the access token.
 

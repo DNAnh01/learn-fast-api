@@ -3,7 +3,9 @@ from sqlalchemy.orm import Session
 from starlette.requests import Request
 
 from app.api import deps
+from app.core import oauth2
 from app.core.google_auth import oauth
+from app.schemas.auth import ChangePassword, Email
 from app.schemas.token import Token
 from app.schemas.user import UserOut, UserSignIn, UserSignUp
 from app.services.auth_service import AuthService
@@ -14,11 +16,11 @@ auth_service: AuthService = AuthServiceImpl()
 
 
 @router.post("/sign-up", status_code=status.HTTP_201_CREATED, response_model=UserOut)
-def sign_up(
+async def sign_up(
     user: UserSignUp,
     db: Session = Depends(deps.get_db)
 ) -> UserOut:
-    return auth_service.sign_up(db=db, user=user)
+    return await auth_service.sign_up(db=db, user=user)
 
 
 @router.post("/sign-in", status_code=status.HTTP_200_OK, response_model=Token)
@@ -51,25 +53,26 @@ def verification(
     return auth_service.verify_user(db=db, token=token)
 
 
-@router.post("/sign-out", status_code=status.HTTP_200_OK)
+@router.get("/sign-out", status_code=status.HTTP_200_OK)
 def sign_out(
-    token: str,
+    get_current_user: UserOut = Depends(oauth2.get_current_user),
     db: Session = Depends(deps.get_db),
 ):
-    return auth_service.sign_out(db=db, token=token)
+    return auth_service.sign_out(db=db, get_current_user=get_current_user)
 
 
 @router.post("/forgot-password")
 async def forgot_password(
-    email: str,
+    email: Email,
     db: Session = Depends(deps.get_db),
 ):
     return await auth_service.forgot_password(db=db, email=email)
 
 
-@router.get("/reset-password")
-async def reset_password(
-    token: str,
+@router.get("/change-password")
+async def change_password(
+    password: ChangePassword,
+    get_current_user: UserOut = Depends(oauth2.get_current_user),
     db: Session = Depends(deps.get_db),
 ):
-    return await auth_service.reset_password(db=db, token=token)
+    return await auth_service.change_password(db=db, get_current_user=get_current_user, password=password)

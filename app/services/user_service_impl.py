@@ -21,7 +21,7 @@ class UserServiceImpl(UserService):
             db=db, filter={"email": user.email}
         )
         if user_found is not None:
-            return user_found
+            raise Exception("User already exists")
         try:
             user_created = self.__crud_user.create(db=db, obj_in=user)
         except Exception as user_exec:

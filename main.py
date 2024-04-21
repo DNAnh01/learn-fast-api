@@ -1,9 +1,11 @@
+import uvicorn
 from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
 from starlette.middleware.sessions import SessionMiddleware
 
 from app.api.v1.api import api_router
 from app.core.config import settings
+from app.db.init_db import init_db
 
 app = FastAPI()
 
@@ -20,14 +22,15 @@ app.add_middleware(
     allow_headers=["*"],
 )
 
-
 app.include_router(api_router, prefix=settings.API_V1_STR)
 
-from app.db.init_db import init_db
-
 # Check if the project has been initialized before
-if settings.ENV == "development":
+if settings.ENV in ["development", "testing"]:
     init_db()
+
+if __name__ == "__main__":
+    uvicorn.run("main:app", host="0.0.0.0", port=8000, reload=True)
+
 
 
 # delete all folders __pycache__ in the project

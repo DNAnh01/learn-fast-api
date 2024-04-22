@@ -9,12 +9,12 @@ from app.crud.crud_user_subscription_plan import crud_user_subscription_plan
 from app.schemas.user import UserOut
 from app.schemas.user_subscription import UserSubscriptionCreate
 from app.schemas.user_subscription_plan import UserSubscriptionPlan
-from app.services.membership_service import MembershipService
-from app.services.subscription_plan_service import SubscriptionPlanService
-from app.services.subscription_plan_service_impl import \
+from app.services.abc.membership_service import MembershipService
+from app.services.abc.subscription_plan_service import SubscriptionPlanService
+from app.services.impl.subscription_plan_service_impl import \
     SubscriptionPlanServiceImpl
-from app.services.user_subscription_service import UserSubscriptionService
-from app.services.user_subscription_service_impl import \
+from app.services.abc.user_subscription_service import UserSubscriptionService
+from app.services.impl.user_subscription_service_impl import \
     UserSubscriptionServiceImpl
 
 logger = setup_logger()

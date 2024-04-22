@@ -7,8 +7,8 @@ from app.api import deps
 from app.core import oauth2
 from app.schemas.conversation import ConversationCreate, ConversationOut
 from app.schemas.user_subscription_plan import UserSubscriptionPlan
-from app.services.conversation_service import ConversationService
-from app.services.conversation_service_impl import ConversationServiceImpl
+from app.services.abc.conversation_service import ConversationService
+from app.services.impl.conversation_service_impl import ConversationServiceImpl
 
 router = APIRouter()
 
@@ -40,7 +40,6 @@ def create(token: str, conversation: ConversationCreate, chatbot_id: uuid.UUID, 
 @router.post("/ask-question", status_code=status.HTTP_200_OK, response_model=str)
 def ask_question(token: str, query: str, conversation_id: uuid.UUID, db: Session = Depends(deps.get_db)
                  ) -> str:
-    respone = conversation_service.conversation(
+    response = conversation_service.conversation(
         db, query, conversation_id, token)
-    return respone
-
+    return response

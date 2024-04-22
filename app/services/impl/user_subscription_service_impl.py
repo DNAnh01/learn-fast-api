@@ -9,7 +9,7 @@ from app.schemas.user_subscription import (
     UserSubscriptionOut,
     UserSubscriptionUpdate,
 )
-from app.services.user_subscription_service import UserSubscriptionService
+from app.services.abc.user_subscription_service import UserSubscriptionService
 
 logger = setup_logger()
 

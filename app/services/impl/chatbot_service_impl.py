@@ -7,37 +7,32 @@ from fastapi import Depends, HTTPException
 from openai import OpenAI
 from sqlalchemy.orm import Session
 
+from app.common import utils
 from app.common.logger import setup_logger
+from app.core.config import settings
 from app.crud.crud_chatbot import crud_chatbot
-from app.schemas.chatbot import (ChatBotCreate, ChatBotInDB, ChatBotOut,
-                                 ChatBotUpdate)
-from app.schemas.user_subscription_plan import UserSubscriptionPlan
-from app.services.chatbot_service import ChatBotService
-from app.services.user_session_service import UserSessionService
-from app.services.user_session_service_impl import UserSessionServiceImpl
-from app.schemas.conversation import ConversationCreate,ConversationUpdate,ConversationOut
-from app.schemas.message import MessageCreate,MessageUpdate,MessageOut,MessageBase
 from app.crud.crud_conversation import crud_conversation
 from app.crud.crud_message import crud_message
-from app.services.conversation_service_impl import ConversationServiceImpl
-from app.services.conversation_service import ConversationService
-from app.services.message_service import MessageService
-from app.services.message_service_impl import MessageServiceImpl
-from app.crud.crud_message import crud_message
-from app.services.knowledgeBase_service import KnowledgeBaseService
-from app.core.config import settings
+from app.schemas.chatbot import (ChatBotCreate, ChatBotInDB, ChatBotOut,
+                                 ChatBotUpdate)
+from app.schemas.conversation import (ConversationCreate, ConversationOut,
+                                      ConversationUpdate)
+from app.schemas.message import (MessageBase, MessageCreate, MessageOut,
+                                 MessageUpdate)
+from app.schemas.user_subscription_plan import UserSubscriptionPlan
+from app.services.abc.chatbot_service import ChatBotService
+from app.services.abc.conversation_service import ConversationService
+from app.services.abc.knowledgebase_service import KnowledgeBaseService
+from app.services.abc.message_service import MessageService
+from app.services.abc.user_session_service import UserSessionService
+from app.services.impl.conversation_service_impl import ConversationServiceImpl
+from app.services.impl.knowledgebase_service_impl import \
+    KnowledgeBaseServiceImpl
+from app.services.impl.message_service_impl import MessageServiceImpl
+from app.services.impl.user_session_service_impl import UserSessionServiceImpl
 
 logger = setup_logger()
 
-def read_pdf(file_path):
-    with open(file_path, 'rb') as file:
-        reader = PyPDF2.PdfReader(file)
-        num_pages = len(reader.pages)
-        text = ''
-        for page_num in range(num_pages):
-            page = reader.pages[page_num]
-            text += page.extract_text()
-    return text
 
 class ChatBotServiceImpl(ChatBotService):
 
@@ -47,7 +42,7 @@ class ChatBotServiceImpl(ChatBotService):
         self.__conversation_service: ConversationService = ConversationServiceImpl()
         self.__crud_message_base = crud_message
         self.__crud_message: MessageService = MessageServiceImpl()
-        self.__crud_knowledgeBase = KnowledgeBaseService()
+        self.__crud_knowledgeBase: KnowledgeBaseService = KnowledgeBaseServiceImpl()
         self.client = OpenAI(api_key=settings.OPEN_API_KEY)
         self.DEFAULT_PROMPT = "You are a helpful assistant. The first prompt will be a long text," \
             "and any messages that you get be regarding that. Please answer any " \
@@ -165,7 +160,7 @@ class ChatBotServiceImpl(ChatBotService):
             # Create response
             temp_knowledgeBase.append({'role': 'system', 'content': chatbot.prompt})
             for knowledgeBase in knowledgeBases:
-                temp_knowledgeBase.append({'role': 'system', 'content': read_pdf(knowledgeBase['file_path'])})
+                temp_knowledgeBase.append({'role': 'system', 'content': utils.read_pdf(knowledgeBase['file_path'])})
             for message in messages:
                 temp_knowledgeBase.append({'role': 'user', 'content': message['message']})
             response = self.client.chat.completions.create(

@@ -1,10 +1,13 @@
 from uuid import UUID
 
+from sqlalchemy import asc
+from sqlalchemy.orm import Session
+
 from app.crud.base import CRUDBase
 from app.models.knowledge_base import KnowledgeBase
-from app.schemas.knowledge_base import KnowledgeBaseAdd, KnowledgeBaseRemove, KnowledgeBaseOut
-from sqlalchemy.orm import Session
-from sqlalchemy import asc
+from app.schemas.knowledge_base import (KnowledgeBaseAdd, KnowledgeBaseOut,
+                                        KnowledgeBaseRemove)
+
 
 class CRUDKnowledgeBase(CRUDBase[KnowledgeBase, KnowledgeBaseAdd, KnowledgeBaseRemove]):
     def get_knowledgeBase_by_chatbot_id(self, db: Session, chatbot_id: UUID):
@@ -16,4 +19,4 @@ class CRUDKnowledgeBase(CRUDBase[KnowledgeBase, KnowledgeBaseAdd, KnowledgeBaseR
         return result
 
 
-crud_knowledgeBase = CRUDKnowledgeBase(KnowledgeBase)
+crud_knowledgebase = CRUDKnowledgeBase(KnowledgeBase)

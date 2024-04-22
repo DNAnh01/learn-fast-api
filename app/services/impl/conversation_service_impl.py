@@ -19,11 +19,11 @@ from app.schemas.message import MessageCreate
 from app.schemas.user_subscription_plan import UserSubscriptionPlan
 # from app.services.chatbot_service import ChatBotService
 # from app.services.chatbot_service_impl import ChatBotServiceImpl
-from app.services.conversation_service import ConversationService
+from app.services.abc.conversation_service import ConversationService
 # from app.services.message_service import MessageService
 # from app.services.message_service_impl import MessageServiceImpl
-from app.services.user_session_service import UserSessionService
-from app.services.user_session_service_impl import UserSessionServiceImpl
+from app.services.abc.user_session_service import UserSessionService
+from app.services.impl.user_session_service_impl import UserSessionServiceImpl
 
 logger = setup_logger()
 

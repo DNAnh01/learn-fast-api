@@ -7,9 +7,9 @@ from app.common.email_template import (email_forgot_password_template,
 from app.common.logger import setup_logger
 from app.core.email_connection import conf
 from app.schemas.user import UserOut
-from app.services.email_service import EmailService
-from app.services.user_service import UserService
-from app.services.user_service_impl import UserServiceImpl
+from app.services.abc.email_service import EmailService
+from app.services.abc.user_service import UserService
+from app.services.impl.user_service_impl import UserServiceImpl
 
 logger = setup_logger()
 

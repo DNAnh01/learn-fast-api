@@ -8,8 +8,8 @@ from app.core.google_auth import oauth
 from app.schemas.auth import ChangePassword, Email
 from app.schemas.token import Token
 from app.schemas.user import UserOut, UserSignIn, UserSignUp
-from app.services.auth_service import AuthService
-from app.services.auth_service_impl import AuthServiceImpl
+from app.services.abc.auth_service import AuthService
+from app.services.impl.auth_service_impl import AuthServiceImpl
 
 router = APIRouter()
 auth_service: AuthService = AuthServiceImpl()

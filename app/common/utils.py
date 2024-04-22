@@ -1,6 +1,7 @@
 from datetime import datetime, timedelta
 from typing import List
 
+import PyPDF2
 from passlib.context import CryptContext
 from sqlalchemy.orm import class_mapper
 
@@ -89,3 +90,13 @@ def asdict(obj):
         (col.name, getattr(obj, col.name))
         for col in class_mapper(obj.__class__).mapped_table.c
     )
+
+def read_pdf(file_path):
+    with open(file_path, 'rb') as file:
+        reader = PyPDF2.PdfReader(file)
+        num_pages = len(reader.pages)
+        text = ''
+        for page_num in range(num_pages):
+            page = reader.pages[page_num]
+            text += page.extract_text()
+    return text

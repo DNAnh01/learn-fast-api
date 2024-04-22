@@ -5,35 +5,30 @@ import traceback
 import uuid
 from typing import List, Optional
 
+import PyPDF2
 from fastapi import Depends, HTTPException
 from sqlalchemy.orm import Session
 
+from app.common import utils
 from app.common.logger import setup_logger
-from app.crud.crud_knowledgeBase import crud_knowledgeBase
-from app.schemas.knowledge_base import (KnowledgeBaseAdd, KnowledgeBaseInDB, KnowledgeBaseOut,KnowledgeBaseRemove)
-import PyPDF2
+from app.crud.crud_knowledgebase import crud_knowledgebase
+from app.schemas.knowledge_base import (KnowledgeBaseAdd, KnowledgeBaseInDB,
+                                        KnowledgeBaseOut, KnowledgeBaseRemove)
+from app.services.abc.knowledgebase_service import KnowledgeBaseService
 
 logger = setup_logger()
 
-def read_pdf(file_path):
-    with open(file_path, 'rb') as file:
-        reader = PyPDF2.PdfReader(file)
-        num_pages = len(reader.pages)
-        text = ''
-        for page_num in range(num_pages):
-            page = reader.pages[page_num]
-            text += page.extract_text()
-    return text
 
-class KnowledgeBaseService(object):
+
+class KnowledgeBaseServiceImpl(KnowledgeBaseService):
 
     def __init__(self):
-        self.__crud_knowledgeBase = crud_knowledgeBase
+        self.__crud_knowledgeBase = crud_knowledgebase
 
 
     def create(self, db: Session, chatbot_id: str, file_path: str, file_name: str) -> KnowledgeBaseOut:
         try:
-            content_data = read_pdf(file_path)
+            content_data = utils.read_pdf(file_path)
             knowledge_base_data = {
                 "title": file_name,  # Add appropriate title
                 "content_type": file_name.split(".")[-1],  # Add appropriate content type

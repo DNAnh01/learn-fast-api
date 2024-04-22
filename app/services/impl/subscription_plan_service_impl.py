@@ -7,7 +7,7 @@ from app.crud.crud_subscription_plan import crud_subscription_plan
 from app.schemas.subscription_plan import (SubscriptionPlanCreate,
                                            SubscriptionPlanOut,
                                            SubscriptionPlanUpdate)
-from app.services.subscription_plan_service import SubscriptionPlanService
+from app.services.abc.subscription_plan_service import SubscriptionPlanService
 
 logger = setup_logger()
 

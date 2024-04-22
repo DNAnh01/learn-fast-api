@@ -22,7 +22,6 @@ engine = create_engine(
 def init_db():
     Base.metadata.create_all(engine)
     with Session(engine) as session:
-
         # Check if tables are empty
         if (
             not session.query(crud_subscription_plan.model).count()

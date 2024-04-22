@@ -6,16 +6,22 @@ from fastapi.security import OAuth2PasswordBearer
 from jose import JWTError, jwt
 from sqlalchemy.orm import Session
 
+from app.api import deps
 from app.common.logger import setup_logger
 from app.core.config import settings
 from app.schemas.token import TokenData
 from app.schemas.user import UserOut
-from app.services.user_service import UserService
-from app.services.user_service_impl import UserServiceImpl
+from app.schemas.user_subscription_plan import UserSubscriptionPlan
+from app.services.abc.membership_service import MembershipService
+from app.services.impl.membership_service_impl import MembershipServiceImpl
+from app.services.abc.user_service import UserService
+from app.services.impl.user_service_impl import UserServiceImpl
 
 logger = setup_logger()
 
 user_service: UserService = UserServiceImpl()
+membership_service = MembershipServiceImpl()
+
 
 oauth2_scheme = OAuth2PasswordBearer(tokenUrl="login")
 
@@ -78,7 +84,7 @@ def verify_access_token(token: str, credentials_exception: HTTPException) -> Tok
     return token_data
 
 
-def get_current_user(db: Session, token: str = Depends(oauth2_scheme)) -> UserOut:
+def get_current_user(db:Session = Depends(deps.get_db), token: str = Depends(oauth2_scheme)) -> UserOut:
     """
     Get the current user from the access token.
 
@@ -97,26 +103,14 @@ def get_current_user(db: Session, token: str = Depends(oauth2_scheme)) -> UserOu
     token_data = verify_access_token(token, credentials_exception)
 
     # user = user_service.get_by_id(db, token_data.id)
-    user = user_service.get_one_with_filter_or_none(db, {"id": token_data.id})
+    user: UserOut = user_service.get_one_with_filter_or_none(db, {"id": token_data.id})
     if user is None:
         logger.error(f"Error in {__name__}.get_current_user: User not found")
         raise credentials_exception
     return user
 
-
-def get_current_admin_user(
-    current_user: UserOut = Depends(get_current_user),
-) -> UserOut:
-    """
-    Get the current user from the access token and check if the user is an admin.
-
-    Parameters:
-    db (Session): The database session.
-    current_user (UserModel): The current user model.
-
-    Returns:
-    UserModel: The current user model if the user is an admin.
-    """
-    if current_user.user_role != "admin":
-        raise HTTPException(status_code=400, detail="Not enough permissions")
-    return current_user
+def get_current_user_membership_info_by_token(
+        db:Session = Depends(deps.get_db), token: str = Depends(oauth2_scheme)
+    ) -> UserSubscriptionPlan:
+    user_found = get_current_user(db, token)
+    return membership_service.get_user_membership_by_user_id(db, user_found.id)

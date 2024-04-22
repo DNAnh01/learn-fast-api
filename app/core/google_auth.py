@@ -13,7 +13,7 @@ oauth.register(
     client_secret=f"{settings.GOOGLE_CLIENT_SECRET}",
     client_kwargs={
         "scope": "email openid profile",
-        "redirect_url": f"{settings.REDIRECT_URL}",
+        "redirect_url": f"{settings.REDIRECT_BACKEND_URL}/api/v1/auth/callback",
     },
     server_metadata_url="https://accounts.google.com/.well-known/openid-configuration",
 )

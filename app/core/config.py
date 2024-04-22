@@ -6,7 +6,12 @@ from pydantic import PostgresDsn, field_validator
 from pydantic_core.core_schema import FieldValidationInfo
 from pydantic_settings import BaseSettings
 
-load_dotenv()  # Load environment variables from .env file
+from app.common.logger import setup_logger
+
+logger = setup_logger()
+
+environment = 'development'
+load_dotenv(f'.env.{environment}')
 
 
 class Settings(BaseSettings):
@@ -14,7 +19,7 @@ class Settings(BaseSettings):
     Application settings
     """
 
-    ENV: str = os.getenv("ENV") or "development"
+    ENV: str = os.getenv("ENV") or environment
     API_V1_STR: str = "/api/v1"
     SECRET_KEY: str = os.getenv("SECRET_KEY")
 
@@ -27,16 +32,22 @@ class Settings(BaseSettings):
     SQLALCHEMY_DATABASE_URI: Optional[PostgresDsn] = None
 
     ALGORITHM: str = os.environ.get("ALGORITHM")
-    ACCESS_TOKEN_EXPIRE_MINUTES: int = os.environ.get("ACCESS_TOKEN_EXPIRE_MINUTES")
+    ACCESS_TOKEN_EXPIRE_MINUTES: int = os.environ.get(
+        "ACCESS_TOKEN_EXPIRE_MINUTES")
 
     GOOGLE_CLIENT_ID: str = os.environ.get("GOOGLE_CLIENT_ID")
     GOOGLE_CLIENT_SECRET: str = os.environ.get("GOOGLE_CLIENT_SECRET")
 
-    REDIRECT_URL: str = os.environ.get("REDIRECT_URL")
+    REDIRECT_BACKEND_URL: str = os.environ.get("REDIRECT_BACKEND_URL")
+    REDIRECT_FRONTEND_URL: str = os.environ.get("REDIRECT_FRONTEND_URL")
+
+
 
     MAIL_USERNAME: str = os.environ.get("MAIL_USERNAME")
     MAIL_PASSWORD: str = os.environ.get("MAIL_PASSWORD")
     MAIL_FROM: str = os.environ.get("MAIL_FROM")
+
+    OPEN_API_KEY: str = os.environ.get("OPEN_API_KEY")
 
     @field_validator("SQLALCHEMY_DATABASE_URI", mode="before")
     @classmethod
@@ -52,6 +63,8 @@ class Settings(BaseSettings):
             port=info.data.get("POSTGRES_PORT"),
             path=info.data.get("POSTGRES_DB"),
         )
+
+
 
     class Config:
         case_sensitive = True

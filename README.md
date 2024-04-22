@@ -1,5 +1,9 @@
 ### Welcome everyone, this is the AI Assistant Chatbot project
 
+##### ERD of the project
+
+<img src="./docs//database_diagrams/v5_Ally_database_diagram.png" height="" width="">
+
 #### To start participating in the project, there are a few things to note:
 
 ##### 1. Everyone participating in this project should code according to the [Gitflow Workflow](https://viblo.asia/p/co-ban-ve-gitflow-workflow-4dbZNn6yZYM)
@@ -26,7 +30,7 @@ conda install --file requirements.txt
 uvicorn main:app --reload
 ```
 
-##### 4. Project directory structure
+##### 5. Project directory structure
 
 ```
 📦Your-Project-Name

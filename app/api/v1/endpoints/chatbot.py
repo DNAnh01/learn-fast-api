@@ -11,14 +11,14 @@ from app.schemas.knowledge_base import (KnowledgeBaseAdd, KnowledgeBaseOut,
                                         KnowledgeBaseRemove)
 from app.schemas.user_subscription_plan import UserSubscriptionPlan
 from app.services.abc.chatbot_service import ChatBotService
-from app.services.abc.knowledgebase_service import KnowledgeBaseService
+from app.services.abc.knowledge_base_service import KnowledgeBaseService
 from app.services.impl.chatbot_service_impl import ChatBotServiceImpl
-from app.services.impl.knowledgebase_service_impl import \
+from app.services.impl.knowledge_base_service_impl import \
     KnowledgeBaseServiceImpl
 
 router = APIRouter()
 chatbot_service: ChatBotService = ChatBotServiceImpl()
-knowledgebase_service: KnowledgeBaseService = KnowledgeBaseServiceImpl()
+knowledge_base_service: KnowledgeBaseService = KnowledgeBaseServiceImpl()
 
 
 
@@ -73,7 +73,7 @@ def update(
 
 
 @router.post("/{chatbot_id}/knowledge-base", status_code=status.HTTP_200_OK)
-def add_knowledgeBase(
+def add_knowledge_base(
         chatbot_id: str,
         file: UploadFile = File(...),
         db: Session = Depends(deps.get_db)
@@ -81,8 +81,8 @@ def add_knowledgeBase(
     file_path = f"knowledge_files/{chatbot_id}_{file.filename}"
     with open(file_path, "wb") as f:
         f.write(file.file.read())
-    created_knowledgeBase = knowledgebase_service.create(db=db, chatbot_id=chatbot_id, file_path=file_path, file_name=file.filename)
-    return created_knowledgeBase
+    created_knowledge_base = knowledge_base_service.create(db=db, chatbot_id=chatbot_id, file_path=file_path, file_name=file.filename)
+    return created_knowledge_base
 
 
 @router.post("/{chatbot_id}/message", status_code=status.HTTP_200_OK)

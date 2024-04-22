@@ -22,11 +22,11 @@ from app.schemas.message import (MessageBase, MessageCreate, MessageOut,
 from app.schemas.user_subscription_plan import UserSubscriptionPlan
 from app.services.abc.chatbot_service import ChatBotService
 from app.services.abc.conversation_service import ConversationService
-from app.services.abc.knowledgebase_service import KnowledgeBaseService
+from app.services.abc.knowledge_base_service import KnowledgeBaseService
 from app.services.abc.message_service import MessageService
 from app.services.abc.user_session_service import UserSessionService
 from app.services.impl.conversation_service_impl import ConversationServiceImpl
-from app.services.impl.knowledgebase_service_impl import \
+from app.services.impl.knowledge_base_service_impl import \
     KnowledgeBaseServiceImpl
 from app.services.impl.message_service_impl import MessageServiceImpl
 from app.services.impl.user_session_service_impl import UserSessionServiceImpl
@@ -42,7 +42,7 @@ class ChatBotServiceImpl(ChatBotService):
         self.__conversation_service: ConversationService = ConversationServiceImpl()
         self.__crud_message_base = crud_message
         self.__crud_message: MessageService = MessageServiceImpl()
-        self.__crud_knowledgeBase: KnowledgeBaseService = KnowledgeBaseServiceImpl()
+        self.__crud_knowledge_base: KnowledgeBaseService = KnowledgeBaseServiceImpl()
         self.client = OpenAI(api_key=settings.OPEN_API_KEY)
         self.DEFAULT_PROMPT = "You are a helpful assistant. The first prompt will be a long text," \
             "and any messages that you get be regarding that. Please answer any " \
@@ -150,22 +150,22 @@ class ChatBotServiceImpl(ChatBotService):
             self, db: Session, chatbot_id: str, conversation_id: str, message: str,
             current_user_membership: UserSubscriptionPlan):
         try:
-            temp_knowledgeBase = []
+            temp_knowledge_base = []
             # Get old message from the current conversation
             messages = self.__crud_message.get_messages_by_conversation_id(db=db, conversation_id=conversation_id)
-            # Get knowledgeBase from the current chatbot
-            knowledgeBases = self.__crud_knowledgeBase.get_knowledgeBase_by_chatbot_id(db=db, chatbot_id=chatbot_id)
+            # Get knowledge_base from the current chatbot
+            knowledge_bases = self.__crud_knowledge_base.get_knowledge_base_by_chatbot_id(db=db, chatbot_id=chatbot_id)
             # Get chatbot info (model)
             chatbot = self.get_one_with_filter_or_none(db=db, current_user_membership=current_user_membership, filter={"id": chatbot_id})
             # Create response
-            temp_knowledgeBase.append({'role': 'system', 'content': chatbot.prompt})
-            for knowledgeBase in knowledgeBases:
-                temp_knowledgeBase.append({'role': 'system', 'content': utils.read_pdf(knowledgeBase['file_path'])})
+            temp_knowledge_base.append({'role': 'system', 'content': chatbot.prompt})
+            for knowledge_base in knowledge_bases:
+                temp_knowledge_base.append({'role': 'system', 'content': utils.read_pdf(knowledge_base['file_path'])})
             for message in messages:
-                temp_knowledgeBase.append({'role': 'user', 'content': message['message']})
+                temp_knowledge_base.append({'role': 'user', 'content': message['message']})
             response = self.client.chat.completions.create(
                 model=chatbot.model,
-                messages=temp_knowledgeBase
+                messages=temp_knowledge_base
             )
             response = response.choices[0].message.content
             return response, chatbot.chatbot_name

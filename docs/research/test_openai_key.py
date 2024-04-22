@@ -62,7 +62,7 @@ class Brain(object):
             knowledge_base.append(item)
         chat_session = {
             "id": random.randint(100000, 999999),
-            "knowledgeBase": knowledge_base,
+            "knowledge_base": knowledge_base,
         }
         self.chatSessions.append(chat_session)
         return chat_session["id"]
@@ -73,13 +73,13 @@ class Brain(object):
             chat_session_id = self.new_chat_session()
         for chat_session in self.chatSessions:
             if chat_session["id"] == chat_session_id:
-                chat_session["knowledgeBase"].append(
+                chat_session["knowledge_base"].append(
                     {"role": "user", "content": question}
                 )
                 response = self.client.chat.completions.create(
-                    model=self.model, messages=chat_session["knowledgeBase"]
+                    model=self.model, messages=chat_session["knowledge_base"]
                 )
-                print(chat_session["knowledgeBase"])
+                print(chat_session["knowledge_base"])
                 return response.choices[0].message.content, chat_session_id
 
 

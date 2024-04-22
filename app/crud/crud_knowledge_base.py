@@ -10,7 +10,7 @@ from app.schemas.knowledge_base import (KnowledgeBaseAdd, KnowledgeBaseOut,
 
 
 class CRUDKnowledgeBase(CRUDBase[KnowledgeBase, KnowledgeBaseAdd, KnowledgeBaseRemove]):
-    def get_knowledgeBase_by_chatbot_id(self, db: Session, chatbot_id: UUID):
+    def get_knowledge_base_by_chatbot_id(self, db: Session, chatbot_id: UUID):
         result = (db.query(KnowledgeBase)
                   .filter(KnowledgeBase.chatbot_id == chatbot_id)
                   .filter(KnowledgeBase.deleted_at == None)
@@ -19,4 +19,4 @@ class CRUDKnowledgeBase(CRUDBase[KnowledgeBase, KnowledgeBaseAdd, KnowledgeBaseR
         return result
 
 
-crud_knowledgebase = CRUDKnowledgeBase(KnowledgeBase)
+crud_knowledge_base = CRUDKnowledgeBase(KnowledgeBase)

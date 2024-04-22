@@ -11,10 +11,10 @@ from sqlalchemy.orm import Session
 
 from app.common import utils
 from app.common.logger import setup_logger
-from app.crud.crud_knowledgebase import crud_knowledgebase
+from app.crud.crud_knowledge_base import crud_knowledge_base
 from app.schemas.knowledge_base import (KnowledgeBaseAdd, KnowledgeBaseInDB,
                                         KnowledgeBaseOut, KnowledgeBaseRemove)
-from app.services.abc.knowledgebase_service import KnowledgeBaseService
+from app.services.abc.knowledge_base_service import KnowledgeBaseService
 
 logger = setup_logger()
 
@@ -23,7 +23,7 @@ logger = setup_logger()
 class KnowledgeBaseServiceImpl(KnowledgeBaseService):
 
     def __init__(self):
-        self.__crud_knowledgeBase = crud_knowledgebase
+        self.__crud_knowledge_base = crud_knowledge_base
 
 
     def create(self, db: Session, chatbot_id: str, file_path: str, file_name: str) -> KnowledgeBaseOut:
@@ -37,7 +37,7 @@ class KnowledgeBaseServiceImpl(KnowledgeBaseService):
                 "file_size": os.path.getsize(file_path),
                 "chatbot_id": chatbot_id
             }
-            KN_created = self.__crud_knowledgeBase.create(db=db, obj_in=knowledge_base_data)
+            KN_created = self.__crud_knowledge_base.create(db=db, obj_in=knowledge_base_data)
             if KN_created:
                 result: KnowledgeBaseOut = KnowledgeBaseOut(**KN_created.__dict__)
                 return result
@@ -47,14 +47,14 @@ class KnowledgeBaseServiceImpl(KnowledgeBaseService):
                 detail="Add KnowledgeBase failed", status_code=400
             )
 
-    def get_knowledgeBase_by_chatbot_id(self, db: Session, chatbot_id: str) -> dict:
+    def get_knowledge_base_by_chatbot_id(self, db: Session, chatbot_id: str) -> dict:
         try:
             chatbot_id = uuid.UUID(chatbot_id)
-            knowledgeBases = self.__crud_knowledgeBase.get_knowledgeBase_by_chatbot_id(
+            knowledge_bases = self.__crud_knowledge_base.get_knowledge_base_by_chatbot_id(
                 db, chatbot_id)
-            knowledgeBases_dict = [dict(**knowledgeBase.__dict__)
-                             for knowledgeBase in knowledgeBases]
-            return knowledgeBases_dict
+            knowledge_bases_dict = [dict(**knowledge_base.__dict__)
+                             for knowledge_base in knowledge_bases]
+            return knowledge_bases_dict
         except:
             traceback.print_exc()
             pass

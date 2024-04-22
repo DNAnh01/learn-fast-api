@@ -24,6 +24,6 @@ class ChatBot(Base):
     user_id = Column(
         UUID(as_uuid=True), ForeignKey("users.id", ondelete="CASCADE"), nullable=False
     )
-    knowledgebase = relationship("KnowledgeBase", back_populates="chatbot")
+    knowledge_base = relationship("KnowledgeBase", back_populates="chatbot")
     conversations = relationship("Conversation", back_populates="chatbot")
     user = relationship("User", back_populates="chatbots")

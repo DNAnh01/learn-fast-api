@@ -20,15 +20,15 @@ from app.schemas.token import Token
 from app.schemas.user import (UserCreate, UserInDB, UserOut, UserSignIn,
                               UserSignInWithGoogle, UserSignUp, UserUpdate)
 from app.schemas.user_session import UserSessionCreate, UserSessionUpdate
-from app.services.auth_service import AuthService
-from app.services.email_service import EmailService
-from app.services.email_service_impl import EmailServiceImpl
-from app.services.membership_service import MembershipService
-from app.services.membership_service_impl import MembershipServiceImpl
-from app.services.user_service import UserService
-from app.services.user_service_impl import UserServiceImpl
-from app.services.user_session_service import UserSessionService
-from app.services.user_session_service_impl import UserSessionServiceImpl
+from app.services.abc.auth_service import AuthService
+from app.services.abc.email_service import EmailService
+from app.services.impl.email_service_impl import EmailServiceImpl
+from app.services.abc.membership_service import MembershipService
+from app.services.impl.membership_service_impl import MembershipServiceImpl
+from app.services.abc.user_service import UserService
+from app.services.impl.user_service_impl import UserServiceImpl
+from app.services.abc.user_session_service import UserSessionService
+from app.services.impl.user_session_service_impl import UserSessionServiceImpl
 
 logger = setup_logger()
 

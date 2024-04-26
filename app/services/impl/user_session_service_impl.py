@@ -7,7 +7,7 @@ from app.common.logger import setup_logger
 from app.crud.crud_user_session import crud_user_session
 from app.schemas.user_session import (UserSessionCreate, UserSessionOut,
                                       UserSessionUpdate)
-from app.services.user_session_service import UserSessionService
+from app.services.abc.user_session_service import UserSessionService
 
 logger = setup_logger()
 

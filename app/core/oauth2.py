@@ -12,10 +12,10 @@ from app.core.config import settings
 from app.schemas.token import TokenData
 from app.schemas.user import UserOut
 from app.schemas.user_subscription_plan import UserSubscriptionPlan
-from app.services.membership_service import MembershipService
-from app.services.membership_service_impl import MembershipServiceImpl
-from app.services.user_service import UserService
-from app.services.user_service_impl import UserServiceImpl
+from app.services.abc.membership_service import MembershipService
+from app.services.impl.membership_service_impl import MembershipServiceImpl
+from app.services.abc.user_service import UserService
+from app.services.impl.user_service_impl import UserServiceImpl
 
 logger = setup_logger()
 

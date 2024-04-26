@@ -8,9 +8,9 @@ from sqlalchemy.orm import Session
 from app.common.logger import setup_logger
 from app.crud.crud_message import crud_message
 from app.schemas.message import MessageCollectionOut, MessageCreate, MessageOut
-from app.services.message_service import MessageService
-from app.services.user_session_service import UserSessionService
-from app.services.user_session_service_impl import UserSessionServiceImpl
+from app.services.abc.message_service import MessageService
+from app.services.abc.user_session_service import UserSessionService
+from app.services.impl.user_session_service_impl import UserSessionServiceImpl
 
 logger = setup_logger()
 
@@ -28,7 +28,7 @@ class MessageServiceImpl(MessageService):
             return self.__crud_message.create(db, obj_in=message)
         except:
             logger.exception(
-                f"Exception in {__name__}.{self.__class__.__name__}.create_message: Invalid token: {token}"
+                f"Exception in {__name__}.{self.__class__.__name__}.create_message: Invalid token: "
             ),
             raise HTTPException(
                 detail="Create Message failed: Invalid token", status_code=401

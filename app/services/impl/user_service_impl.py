@@ -6,7 +6,7 @@ from app.common.logger import setup_logger
 from app.crud.crud_user import crud_user
 from app.schemas.user import (UserCreate, UserInDB, UserOut,
                               UserSignInWithGoogle, UserUpdate)
-from app.services.user_service import UserService
+from app.services.abc.user_service import UserService
 
 logger = setup_logger()
 

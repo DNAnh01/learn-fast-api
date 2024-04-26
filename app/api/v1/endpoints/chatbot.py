@@ -1,6 +1,7 @@
 from typing import List, Optional
 
-from fastapi import APIRouter, Depends, File, HTTPException, UploadFile, status, Cookie, Request
+from fastapi import (APIRouter, Cookie, Depends, File, HTTPException, Request,
+                     UploadFile, status)
 from sqlalchemy.orm import Session
 
 from app.api import deps
@@ -9,13 +10,15 @@ from app.schemas.chatbot import ChatBotCreate, ChatBotOut, ChatBotUpdate
 from app.schemas.knowledge_base import (KnowledgeBaseAdd, KnowledgeBaseOut,
                                         KnowledgeBaseRemove)
 from app.schemas.user_subscription_plan import UserSubscriptionPlan
-from app.services.chatbot_service import ChatBotService
-from app.services.chatbot_service_impl import ChatBotServiceImpl
-from app.services.knowledgeBase_service import KnowledgeBaseService
+from app.services.abc.chatbot_service import ChatBotService
+from app.services.abc.knowledgebase_service import KnowledgeBaseService
+from app.services.impl.chatbot_service_impl import ChatBotServiceImpl
+from app.services.impl.knowledgebase_service_impl import \
+    KnowledgeBaseServiceImpl
 
 router = APIRouter()
 chatbot_service: ChatBotService = ChatBotServiceImpl()
-knowledgebase_service = KnowledgeBaseService()
+knowledgebase_service: KnowledgeBaseService = KnowledgeBaseServiceImpl()
 
 
 
@@ -35,7 +38,7 @@ def create(
 
 
 
-@router.get("/get_all", status_code=status.HTTP_200_OK)
+@router.get("/get-all", status_code=status.HTTP_200_OK)
 def get_all(
     current_user_membership: UserSubscriptionPlan = Depends(oauth2.get_current_user_membership_info_by_token),
     db: Session = Depends(deps.get_db)
@@ -69,13 +72,13 @@ def update(
     return updated_chatbot
 
 
-@router.post("/{chatbot_id}/knowledge_base", status_code=status.HTTP_200_OK)
+@router.post("/{chatbot_id}/knowledge-base", status_code=status.HTTP_200_OK)
 def add_knowledgeBase(
         chatbot_id: str,
         file: UploadFile = File(...),
         db: Session = Depends(deps.get_db)
 ):
-    file_path = f"KnowledgeBase/{chatbot_id}_{file.filename}"
+    file_path = f"knowledge_files/{chatbot_id}_{file.filename}"
     with open(file_path, "wb") as f:
         f.write(file.file.read())
     created_knowledgeBase = knowledgebase_service.create(db=db, chatbot_id=chatbot_id, file_path=file_path, file_name=file.filename)

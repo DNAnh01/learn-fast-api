@@ -24,7 +24,8 @@ from app.services.abc.conversation_service import ConversationService
 # from app.services.message_service_impl import MessageServiceImpl
 from app.services.abc.user_session_service import UserSessionService
 from app.services.impl.user_session_service_impl import UserSessionServiceImpl
-
+# from app.services.abc.chatbot_service import ChatBotService
+# from app.services.impl.chatbot_service_impl import ChatBotServiceImpl
 logger = setup_logger()
 
 
@@ -37,14 +38,19 @@ class ConversationServiceImpl(ConversationService):
         # self.__user_session_service: UserSessionService = UserSessionServiceImpl()
         self.client = OpenAI(api_key=settings.OPEN_API_KEY)
 
-    def create(self, db: Session, conversation_create: ConversationCreate, chatbot_id: uuid.UUID,  current_user_membership: UserSubscriptionPlan) -> ConversationOut:
+    def create(self, db: Session, chatbot_id: str, client_ip: str) -> ConversationOut:
         # check condition
         # join messages and conversations table to get the total number of message and compare with the max character per chatbot
-        logger.info(f"current_user_membership: {current_user_membership}")
+        # logger.info(f"current_user_membership: {current_user_membership}")
         try:
-            conversation_create.user_id = current_user_membership.u_id
-            conversation_create.chatbot_id = chatbot_id
-
+            from app.services.impl.chatbot_service_impl import ChatBotServiceImpl
+            __chatbot_service = ChatBotServiceImpl()
+            client_info = json.loads(requests.get('http://ip-api.com/json/' + client_ip).text)
+            conversation_create = {
+                "user_id": __chatbot_service.get_one_with_filter_or_none(db=db, filter={"id": chatbot_id}).user_id,
+                "chatbot_id": chatbot_id,
+                "conversation_name": client_info['countryCode'] + str(client_ip.replace(".", ""))
+            }
             return self.__crud_conversation.create(db, obj_in=conversation_create)
         except:
             logger.exception(
@@ -54,7 +60,7 @@ class ConversationServiceImpl(ConversationService):
                 detail="Create Conversation failed: An error occurred", status_code=500
             )
 
-    def get_one_with_filter_or_none(self, db: Session, current_user_membership: UserSubscriptionPlan, filter: dict) -> Optional[ConversationOut]:
+    def get_one_with_filter_or_none(self, db: Session,  filter: dict) -> Optional[ConversationOut]:
         try:
             return self.__crud_conversation.get_one_by(db=db, filter=filter)
         except:
@@ -63,15 +69,17 @@ class ConversationServiceImpl(ConversationService):
             )
             return None
 
-    def check_conversation(self, db: Session, current_user_membership: UserSubscriptionPlan, conversation_id: str, chatbot_id: str, client_ip: str) -> ConversationOut:
+    def check_conversation(self, db: Session, conversation_id: str, chatbot_id: str, client_ip: str) -> ConversationOut:
         try:
-            conversation = self.get_one_with_filter_or_none(db=db, filter={"id": conversation_id}, current_user_membership= current_user_membership)
+            conversation = self.get_one_with_filter_or_none(db=db, filter={"id": conversation_id})
             if conversation is None:
                 client_info = json.loads(requests.get('http://ip-api.com/json/' + client_ip).text)
+                from app.services.impl.chatbot_service_impl import ChatBotServiceImpl
+                __chatbot_service = ChatBotServiceImpl()
                 conversation_create = {
-                    "user_id": current_user_membership.u_id,
+                    "user_id": __chatbot_service.get_one_with_filter_or_none(db=db, filter={"id": chatbot_id}).user_id,
                     "chatbot_id": chatbot_id,
-                    "conversation_name": client_info['countryCode'] + str(random.randint(100000000,999999999))
+                    "conversation_name": client_info['countryCode'] + str(client_ip.replace(".",""))
                 }
                 return self.__crud_conversation.create(db, obj_in=conversation_create)
             else:

@@ -14,8 +14,8 @@ class Conversation(Base):
         UUID(as_uuid=True), ForeignKey('users.id', ondelete="CASCADE"), nullable=True
     )
 
-    started_at = Column(DateTime)
-    ended_at = Column(DateTime)
+    # started_at = Column(DateTime, nullable= True)
+    ended_at = Column(DateTime, nullable= True)
     rating_score = Column(Float, nullable=True)
     conversation_name = Column(String)
 

@@ -17,7 +17,6 @@ class ChatBotCreate(BaseModel):
     is_default: bool
     prompt: str
 
-
 class ChatBotUpdate(ChatBotBase):
     chatbot_name: Optional[str] = None
     model: Optional[str] = None
@@ -26,6 +25,7 @@ class ChatBotUpdate(ChatBotBase):
     max_tokens: Optional[int] = None
     is_default: Optional[bool] = None
     prompt: Optional[str] = None
+    chatbot_config: Optional[dict] = None
 
 
 class ChatBotOut(ChatBotBase):
@@ -37,6 +37,7 @@ class ChatBotOut(ChatBotBase):
     max_tokens: int
     is_default: bool
     prompt: str
+    chatbot_config: dict
 
     class Config:
         orm_mode = True

@@ -1,4 +1,4 @@
-from sqlalchemy import Boolean, Column, Float, ForeignKey, Integer, String
+from sqlalchemy import Boolean, Column, Float, ForeignKey, Integer, String, JSON
 from sqlalchemy.dialects.postgresql.base import UUID
 from sqlalchemy.orm import relationship
 
@@ -21,6 +21,21 @@ class ChatBot(Base):
         "and any messages that you get be regarding that. Please answer any "
         "questions and requests having in mind the first prompt ",
     )
+    chatbot_config = Column(JSON, default={
+        "font_family": "Default",
+        "font_size": 14,
+        "input_background": "#FFFFFF",
+        "background_color": "#FFFFFF",
+        "user_font_color": "#FFFFFF",
+        "prompts_font_color": "#272727",
+        "ally_font_color": "#272727",
+        "disclaimer_color": "#676767",
+        "input_placeholder": "Write your message",
+        "disclaimer_text": "",
+        "chatbot_logo": "https://i.imgur.com/KWvPAWC.png",
+        "website_link": "https://ally.com",
+        "powered_by_remove": 0
+    })
     user_id = Column(
         UUID(as_uuid=True), ForeignKey("users.id", ondelete="CASCADE"), nullable=False
     )

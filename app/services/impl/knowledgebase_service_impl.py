@@ -11,7 +11,7 @@ from sqlalchemy.orm import Session
 
 from app.common import utils
 from app.common.logger import setup_logger
-from app.crud.crud_knowledgebase import crud_knowledgebase
+from app.crud.crud_knowledgeBase import crud_knowledgebase
 from app.schemas.knowledge_base import (KnowledgeBaseAdd, KnowledgeBaseInDB,
                                         KnowledgeBaseOut, KnowledgeBaseRemove)
 from app.services.abc.knowledgebase_service import KnowledgeBaseService
@@ -47,7 +47,7 @@ class KnowledgeBaseServiceImpl(KnowledgeBaseService):
                 detail="Add KnowledgeBase failed", status_code=400
             )
 
-    def get_knowledgeBase_by_chatbot_id(self, db: Session, chatbot_id: str) -> dict:
+    def get_knowledgeBase_by_chatbot_id(self, db: Session, chatbot_id: str):
         try:
             chatbot_id = uuid.UUID(chatbot_id)
             knowledgeBases = self.__crud_knowledgeBase.get_knowledgeBase_by_chatbot_id(

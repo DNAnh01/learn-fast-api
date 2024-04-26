@@ -1,5 +1,7 @@
+import json
 from typing import List, Optional
 
+import requests
 from fastapi import (APIRouter, Cookie, Depends, File, HTTPException, Request,
                      UploadFile, status)
 from sqlalchemy.orm import Session
@@ -9,15 +11,18 @@ from app.core import oauth2
 from app.schemas.chatbot import ChatBotCreate, ChatBotOut, ChatBotUpdate
 from app.schemas.knowledge_base import (KnowledgeBaseAdd, KnowledgeBaseOut,
                                         KnowledgeBaseRemove)
+from app.schemas.conversation import (ConversationCreate,ConversationOut)
 from app.schemas.user_subscription_plan import UserSubscriptionPlan
 from app.services.abc.chatbot_service import ChatBotService
 from app.services.abc.knowledgebase_service import KnowledgeBaseService
 from app.services.impl.chatbot_service_impl import ChatBotServiceImpl
 from app.services.impl.knowledgebase_service_impl import \
     KnowledgeBaseServiceImpl
+from app.services.impl.conversation_service_impl import ConversationServiceImpl
 
 router = APIRouter()
 chatbot_service: ChatBotService = ChatBotServiceImpl()
+conversation_service = ConversationServiceImpl()
 knowledgebase_service: KnowledgeBaseService = KnowledgeBaseServiceImpl()
 
 
@@ -53,7 +58,7 @@ def get_one(
     current_user_membership: UserSubscriptionPlan = Depends(oauth2.get_current_user_membership_info_by_token),
     db: Session = Depends(deps.get_db)
 ) -> Optional[ChatBotOut]:
-    chatbot = chatbot_service.get_one_with_filter_or_none(db=db, current_user_membership=current_user_membership, filter={"id": chatbot_id})
+    chatbot = chatbot_service.get_one_with_filter_or_none(db=db, filter={"id": chatbot_id})
     if chatbot is None:
         raise HTTPException(status_code=404, detail="Chatbot not found")
     return chatbot
@@ -91,11 +96,22 @@ def message_chatbot(
         message: dict,
         request: Request,
         db: Session = Depends(deps.get_db),
-        current_user_membership: UserSubscriptionPlan = Depends(oauth2.get_current_user_membership_info_by_token),
         conversation_id: str = Cookie(None)
 ):
     # client_ip = request.client.host
     client_ip = "42.118.119.124"
-    response = chatbot_service.message(db=db, chatbot_id=chatbot_id, conversation_id=conversation_id, current_user_membership=current_user_membership, message=message['message'], client_ip=client_ip)
+    response = chatbot_service.message(db=db, chatbot_id=chatbot_id, conversation_id=conversation_id, message=message['message'], client_ip=client_ip)
     return response
 
+
+@router.get("/{chatbot_id}/new-conversation", status_code=status.HTTP_200_OK)
+def new_conversation(
+        chatbot_id: str,
+        request: Request,
+        db: Session = Depends(deps.get_db)
+        ) -> ConversationOut:
+    # client_ip = request.client.host
+    client_ip = "42.118.119.124"
+    new_conversation = conversation_service.create(
+        db=db, chatbot_id=chatbot_id, client_ip=client_ip)
+    return new_conversation

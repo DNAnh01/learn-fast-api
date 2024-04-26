@@ -11,5 +11,5 @@ class KnowledgeBaseService(ABC):
         pass
 
     @abstractmethod
-    def get_knowledgeBase_by_chatbot_id(self, db: Session, chatbot_id: str) -> dict:
+    def get_knowledgeBase_by_chatbot_id(self, db: Session, chatbot_id: str):
         pass

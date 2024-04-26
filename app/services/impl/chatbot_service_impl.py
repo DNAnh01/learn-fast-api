@@ -91,7 +91,7 @@ class ChatBotServiceImpl(ChatBotService):
             return None
         
 
-    def get_one_with_filter_or_none(self, db: Session, current_user_membership: UserSubscriptionPlan, filter: dict) -> Optional[ChatBotOut]:
+    def get_one_with_filter_or_none(self, db: Session, filter: dict) -> Optional[ChatBotOut]:
         try:
             return self.__crud_chatbot.get_one_by(db=db, filter=filter)
         except:
@@ -103,7 +103,7 @@ class ChatBotServiceImpl(ChatBotService):
     def update_one_with_filter(
         self, db: Session, chatbot_update: ChatBotUpdate, current_user_membership: UserSubscriptionPlan, filter: dict) -> ChatBotOut:
         try:
-            chatbot = self.get_one_with_filter_or_none(db=db,                                   current_user_membership=current_user_membership, filter=filter)
+            chatbot = self.get_one_with_filter_or_none(db=db, filter=filter)
             if chatbot is None:
                 logger.exception(
                     f"Exception in {__name__}.{self.__class__.__name__}.update_one_with_filter: Chatbot not found"
@@ -121,9 +121,9 @@ class ChatBotServiceImpl(ChatBotService):
             )
 
     def message(
-            self, db: Session, chatbot_id: str, conversation_id: str, message: str, current_user_membership: UserSubscriptionPlan, client_ip: str) -> MessageOut:
+            self, db: Session, chatbot_id: str, conversation_id: str, message: str, client_ip: str) -> MessageOut:
         try:
-            conversation = self.__conversation_service.check_conversation(db=db, current_user_membership=current_user_membership, conversation_id=conversation_id, chatbot_id=chatbot_id, client_ip=client_ip)
+            conversation = self.__conversation_service.check_conversation(db=db, conversation_id=conversation_id, chatbot_id=chatbot_id, client_ip=client_ip)
             # Add message to Message
             message_form = {
                 "sender_id": conversation.conversation_name,
@@ -133,9 +133,9 @@ class ChatBotServiceImpl(ChatBotService):
             }
             add_message = self.__crud_message_base.create(db=db, obj_in=message_form)
             # Handle response and add to Message
-            response, chatbot_name = self.handle_message(db=db, chatbot_id=chatbot_id, conversation_id=conversation_id, message=message,current_user_membership=current_user_membership)
+            response, chatbot_id = self.handle_message(db=db, chatbot_id=chatbot_id, conversation_id=conversation_id, message=message)
             message_form = {
-                "sender_id": chatbot_name,
+                "sender_id": chatbot_id,
                 "sender_type": "bot",
                 "message": response,
                 "conversation_id": conversation.id
@@ -147,13 +147,12 @@ class ChatBotServiceImpl(ChatBotService):
             pass
 
     def handle_message(
-            self, db: Session, chatbot_id: str, conversation_id: str, message: str,
-            current_user_membership: UserSubscriptionPlan):
+            self, db: Session, chatbot_id: str, conversation_id: str, message: str):
         try:
             temp_knowledgeBase = []
             messages = self.__crud_message.get_messages_by_conversation_id(db=db, conversation_id=conversation_id)
             knowledgeBases = self.__crud_knowledgeBase.get_knowledgeBase_by_chatbot_id(db=db, chatbot_id=chatbot_id)
-            chatbot = self.get_one_with_filter_or_none(db=db, current_user_membership=current_user_membership, filter={"id": chatbot_id})
+            chatbot = self.get_one_with_filter_or_none(db=db, filter={"id": chatbot_id})
             # Create response
             temp_knowledgeBase.append({'role': 'system', 'content': chatbot.prompt})
             for knowledgeBase in knowledgeBases:
@@ -165,7 +164,7 @@ class ChatBotServiceImpl(ChatBotService):
                 messages=temp_knowledgeBase
             )
             response = response.choices[0].message.content
-            return response, chatbot.chatbot_name
+            return response, chatbot.id
         except:
             traceback.print_exc()
             pass

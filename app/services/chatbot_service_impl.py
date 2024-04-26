@@ -156,11 +156,8 @@ class ChatBotServiceImpl(ChatBotService):
             current_user_membership: UserSubscriptionPlan):
         try:
             temp_knowledgeBase = []
-            # Get old message from the current conversation
             messages = self.__crud_message.get_messages_by_conversation_id(db=db, conversation_id=conversation_id)
-            # Get knowledgeBase from the current chatbot
             knowledgeBases = self.__crud_knowledgeBase.get_knowledgeBase_by_chatbot_id(db=db, chatbot_id=chatbot_id)
-            # Get chatbot info (model)
             chatbot = self.get_one_with_filter_or_none(db=db, current_user_membership=current_user_membership, filter={"id": chatbot_id})
             # Create response
             temp_knowledgeBase.append({'role': 'system', 'content': chatbot.prompt})

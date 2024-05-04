@@ -22,11 +22,19 @@ from app.schemas.message import (MessageBase, MessageCreate, MessageOut,
 from app.schemas.user_subscription_plan import UserSubscriptionPlan
 from app.services.abc.chatbot_service import ChatBotService
 from app.services.abc.conversation_service import ConversationService
+<<<<<<< HEAD
 from app.services.abc.knowledge_base_service import KnowledgeBaseService
 from app.services.abc.message_service import MessageService
 from app.services.abc.user_session_service import UserSessionService
 from app.services.impl.conversation_service_impl import ConversationServiceImpl
 from app.services.impl.knowledge_base_service_impl import \
+=======
+from app.services.abc.knowledgebase_service import KnowledgeBaseService
+from app.services.abc.message_service import MessageService
+from app.services.abc.user_session_service import UserSessionService
+from app.services.impl.conversation_service_impl import ConversationServiceImpl
+from app.services.impl.knowledgebase_service_impl import \
+>>>>>>> origin/feature/MessageAndConversation
     KnowledgeBaseServiceImpl
 from app.services.impl.message_service_impl import MessageServiceImpl
 from app.services.impl.user_session_service_impl import UserSessionServiceImpl
@@ -42,7 +50,11 @@ class ChatBotServiceImpl(ChatBotService):
         self.__conversation_service: ConversationService = ConversationServiceImpl()
         self.__crud_message_base = crud_message
         self.__crud_message: MessageService = MessageServiceImpl()
+<<<<<<< HEAD
         self.__crud_knowledge_base: KnowledgeBaseService = KnowledgeBaseServiceImpl()
+=======
+        self.__crud_knowledgeBase: KnowledgeBaseService = KnowledgeBaseServiceImpl()
+>>>>>>> origin/feature/MessageAndConversation
         self.client = OpenAI(api_key=settings.OPEN_API_KEY)
         self.DEFAULT_PROMPT = "You are a helpful assistant. The first prompt will be a long text," \
             "and any messages that you get be regarding that. Please answer any " \
@@ -83,7 +95,12 @@ class ChatBotServiceImpl(ChatBotService):
 
     def get_all_or_none(self, db: Session, current_user_membership: UserSubscriptionPlan) -> Optional[List[ChatBotOut]]:
         try:
+<<<<<<< HEAD
             return self.__crud_chatbot.get_multi(db=db, filter_param={"user_id": current_user_membership.u_id})
+=======
+            results = self.__crud_chatbot.get_multi(db=db, filter_param={"user_id": current_user_membership.u_id})
+            return results
+>>>>>>> origin/feature/MessageAndConversation
         except:
             logger.exception(
                 f"Exception in {__name__}.{self.__class__.__name__}.get_all_or_none"
@@ -91,7 +108,11 @@ class ChatBotServiceImpl(ChatBotService):
             return None
         
 
+<<<<<<< HEAD
     def get_one_with_filter_or_none(self, db: Session, current_user_membership: UserSubscriptionPlan, filter: dict) -> Optional[ChatBotOut]:
+=======
+    def get_one_with_filter_or_none(self, db: Session, filter: dict) -> Optional[ChatBotOut]:
+>>>>>>> origin/feature/MessageAndConversation
         try:
             return self.__crud_chatbot.get_one_by(db=db, filter=filter)
         except:
@@ -103,7 +124,11 @@ class ChatBotServiceImpl(ChatBotService):
     def update_one_with_filter(
         self, db: Session, chatbot_update: ChatBotUpdate, current_user_membership: UserSubscriptionPlan, filter: dict) -> ChatBotOut:
         try:
+<<<<<<< HEAD
             chatbot = self.get_one_with_filter_or_none(db=db,                                   current_user_membership=current_user_membership, filter=filter)
+=======
+            chatbot = self.get_one_with_filter_or_none(db=db, filter=filter)
+>>>>>>> origin/feature/MessageAndConversation
             if chatbot is None:
                 logger.exception(
                     f"Exception in {__name__}.{self.__class__.__name__}.update_one_with_filter: Chatbot not found"
@@ -121,9 +146,15 @@ class ChatBotServiceImpl(ChatBotService):
             )
 
     def message(
+<<<<<<< HEAD
             self, db: Session, chatbot_id: str, conversation_id: str, message: str, current_user_membership: UserSubscriptionPlan, client_ip: str) -> MessageOut:
         try:
             conversation = self.__conversation_service.check_conversation(db=db, current_user_membership=current_user_membership, conversation_id=conversation_id, chatbot_id=chatbot_id, client_ip=client_ip)
+=======
+            self, db: Session, chatbot_id: str, conversation_id: str, message: str, client_ip: str) -> MessageOut:
+        try:
+            conversation = self.__conversation_service.check_conversation(db=db, conversation_id=conversation_id, chatbot_id=chatbot_id, client_ip=client_ip)
+>>>>>>> origin/feature/MessageAndConversation
             # Add message to Message
             message_form = {
                 "sender_id": conversation.conversation_name,
@@ -132,6 +163,7 @@ class ChatBotServiceImpl(ChatBotService):
                 "conversation_id": conversation.id
             }
             add_message = self.__crud_message_base.create(db=db, obj_in=message_form)
+<<<<<<< HEAD
             # Handle response and add to Message
             response, chatbot_name = self.handle_message(db=db, chatbot_id=chatbot_id, conversation_id=conversation_id, message=message,current_user_membership=current_user_membership)
             message_form = {
@@ -142,11 +174,28 @@ class ChatBotServiceImpl(ChatBotService):
             }
             add_message = self.__crud_message_base.create(db=db, obj_in=message_form)
             return add_message
+=======
+            if conversation.is_taken == False:
+                # Handle auto response and add to Message
+                response, chatbot_id = self.handle_message(db=db, chatbot_id=chatbot_id, conversation_id=conversation_id, message=message)
+                message_form = {
+                    "sender_id": chatbot_id,
+                    "sender_type": "bot",
+                    "message": response,
+                    "conversation_id": conversation.id
+                }
+                add_message = self.__crud_message_base.create(db=db, obj_in=message_form)
+                return add_message
+            else:
+                # Handle manual response and add to Message
+                return add_message
+>>>>>>> origin/feature/MessageAndConversation
         except:
             traceback.print_exc()
             pass
 
     def handle_message(
+<<<<<<< HEAD
             self, db: Session, chatbot_id: str, conversation_id: str, message: str,
             current_user_membership: UserSubscriptionPlan):
         try:
@@ -169,6 +218,26 @@ class ChatBotServiceImpl(ChatBotService):
             )
             response = response.choices[0].message.content
             return response, chatbot.chatbot_name
+=======
+            self, db: Session, chatbot_id: str, conversation_id: str, message: str):
+        try:
+            temp_knowledgeBase = []
+            messages = self.__crud_message.get_messages_by_conversation_id(db=db, conversation_id=conversation_id)
+            knowledgeBases = self.__crud_knowledgeBase.get_knowledgeBase_by_chatbot_id(db=db, chatbot_id=chatbot_id)
+            chatbot = self.get_one_with_filter_or_none(db=db, filter={"id": chatbot_id})
+            # Create response
+            temp_knowledgeBase.append({'role': 'system', 'content': chatbot.prompt})
+            for knowledgeBase in knowledgeBases:
+                temp_knowledgeBase.append({'role': 'system', 'content': utils.read_pdf(knowledgeBase['file_path'])})
+            for message in messages:
+                temp_knowledgeBase.append({'role': 'user', 'content': message['message']})
+            response = self.client.chat.completions.create(
+                model=chatbot.model,
+                messages=temp_knowledgeBase
+            )
+            response = response.choices[0].message.content
+            return response, chatbot.id
+>>>>>>> origin/feature/MessageAndConversation
         except:
             traceback.print_exc()
             pass

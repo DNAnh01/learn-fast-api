@@ -21,7 +21,11 @@ class ChatBotService(ABC):
 
 
     @abstractmethod
+<<<<<<< HEAD
     def get_one_with_filter_or_none(self, db: Session, current_user_membership: UserSubscriptionPlan, filter: dict) -> Optional[ChatBotOut]:
+=======
+    def get_one_with_filter_or_none(self, db: Session, filter: dict) -> Optional[ChatBotOut]:
+>>>>>>> origin/feature/MessageAndConversation
         pass
 
     @abstractmethod
@@ -31,11 +35,19 @@ class ChatBotService(ABC):
 
     @abstractmethod
     def message(
+<<<<<<< HEAD
             self, db: Session, chatbot_id: str, conversation_id: str, message: str, current_user_membership: UserSubscriptionPlan, client_ip: str) -> MessageOut:
+=======
+            self, db: Session, chatbot_id: str, conversation_id: str, message: str, client_ip: str) -> MessageOut:
+>>>>>>> origin/feature/MessageAndConversation
         pass
 
     @abstractmethod
     def handle_message(
+<<<<<<< HEAD
             self, db: Session, chatbot_id: str, conversation_id: str, message: str, current_user_membership: UserSubscriptionPlan) -> MessageOut:
+=======
+            self, db: Session, chatbot_id: str, conversation_id: str, message: str) -> MessageOut:
+>>>>>>> origin/feature/MessageAndConversation
         pass
 

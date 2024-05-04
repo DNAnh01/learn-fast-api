@@ -62,7 +62,11 @@ class Brain(object):
             knowledge_base.append(item)
         chat_session = {
             "id": random.randint(100000, 999999),
+<<<<<<< HEAD
             "knowledge_base": knowledge_base,
+=======
+            "knowledgeBase": knowledge_base,
+>>>>>>> origin/feature/MessageAndConversation
         }
         self.chatSessions.append(chat_session)
         return chat_session["id"]
@@ -73,6 +77,7 @@ class Brain(object):
             chat_session_id = self.new_chat_session()
         for chat_session in self.chatSessions:
             if chat_session["id"] == chat_session_id:
+<<<<<<< HEAD
                 chat_session["knowledge_base"].append(
                     {"role": "user", "content": question}
                 )
@@ -80,6 +85,15 @@ class Brain(object):
                     model=self.model, messages=chat_session["knowledge_base"]
                 )
                 print(chat_session["knowledge_base"])
+=======
+                chat_session["knowledgeBase"].append(
+                    {"role": "user", "content": question}
+                )
+                response = self.client.chat.completions.create(
+                    model=self.model, messages=chat_session["knowledgeBase"]
+                )
+                print(chat_session["knowledgeBase"])
+>>>>>>> origin/feature/MessageAndConversation
                 return response.choices[0].message.content, chat_session_id
 
 

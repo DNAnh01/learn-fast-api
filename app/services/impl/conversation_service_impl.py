@@ -2,7 +2,11 @@ import datetime
 import json
 import random
 import uuid
+<<<<<<< HEAD
 from typing import Any, Generator, Optional
+=======
+from typing import Any, Generator, Optional, List
+>>>>>>> origin/feature/MessageAndConversation
 from uuid import UUID
 
 import PyPDF2
@@ -10,7 +14,11 @@ import requests
 from fastapi import Depends, HTTPException
 from openai import OpenAI
 from sqlalchemy.orm import Session
+<<<<<<< HEAD
 
+=======
+from datetime import datetime
+>>>>>>> origin/feature/MessageAndConversation
 from app.common.logger import setup_logger
 from app.core.config import settings
 from app.crud.crud_conversation import crud_conversation
@@ -20,11 +28,21 @@ from app.schemas.user_subscription_plan import UserSubscriptionPlan
 # from app.services.chatbot_service import ChatBotService
 # from app.services.chatbot_service_impl import ChatBotServiceImpl
 from app.services.abc.conversation_service import ConversationService
+<<<<<<< HEAD
 # from app.services.message_service import MessageService
 # from app.services.message_service_impl import MessageServiceImpl
 from app.services.abc.user_session_service import UserSessionService
 from app.services.impl.user_session_service_impl import UserSessionServiceImpl
 
+=======
+from app.services.abc.message_service import MessageService
+from app.services.impl.message_service_impl import MessageServiceImpl
+from app.crud.crud_message import crud_message
+from app.services.abc.user_session_service import UserSessionService
+from app.services.impl.user_session_service_impl import UserSessionServiceImpl
+# from app.services.abc.chatbot_service import ChatBotService
+# from app.services.impl.chatbot_service_impl import ChatBotServiceImpl
+>>>>>>> origin/feature/MessageAndConversation
 logger = setup_logger()
 
 
@@ -32,11 +50,17 @@ class ConversationServiceImpl(ConversationService):
 
     def __init__(self):
         self.__crud_conversation = crud_conversation
+<<<<<<< HEAD
+=======
+        self.__crud_message: MessageService = MessageServiceImpl()
+        self.__crud_message_base = crud_message
+>>>>>>> origin/feature/MessageAndConversation
         # self.__chatbot_service: ChatBotService = ChatBotServiceImpl()
         # self.__message_service: MessageService = MessageServiceImpl()
         # self.__user_session_service: UserSessionService = UserSessionServiceImpl()
         self.client = OpenAI(api_key=settings.OPEN_API_KEY)
 
+<<<<<<< HEAD
     def create(self, db: Session, conversation_create: ConversationCreate, chatbot_id: uuid.UUID,  current_user_membership: UserSubscriptionPlan) -> ConversationOut:
         # check condition
         # join messages and conversations table to get the total number of message and compare with the max character per chatbot
@@ -45,6 +69,21 @@ class ConversationServiceImpl(ConversationService):
             conversation_create.user_id = current_user_membership.u_id
             conversation_create.chatbot_id = chatbot_id
 
+=======
+    def create(self, db: Session, chatbot_id: str, client_ip: str) -> ConversationOut:
+        # check condition
+        # join messages and conversations table to get the total number of message and compare with the max character per chatbot
+        # logger.info(f"current_user_membership: {current_user_membership}")
+        try:
+            from app.services.impl.chatbot_service_impl import ChatBotServiceImpl
+            __chatbot_service = ChatBotServiceImpl()
+            client_info = json.loads(requests.get('http://ip-api.com/json/' + client_ip).text)
+            conversation_create = {
+                "user_id": __chatbot_service.get_one_with_filter_or_none(db=db, filter={"id": chatbot_id}).user_id,
+                "chatbot_id": chatbot_id,
+                "conversation_name": client_info['countryCode'] + str(client_ip.replace(".", ""))
+            }
+>>>>>>> origin/feature/MessageAndConversation
             return self.__crud_conversation.create(db, obj_in=conversation_create)
         except:
             logger.exception(
@@ -54,7 +93,11 @@ class ConversationServiceImpl(ConversationService):
                 detail="Create Conversation failed: An error occurred", status_code=500
             )
 
+<<<<<<< HEAD
     def get_one_with_filter_or_none(self, db: Session, current_user_membership: UserSubscriptionPlan, filter: dict) -> Optional[ConversationOut]:
+=======
+    def get_one_with_filter_or_none(self, db: Session,  filter: dict) -> Optional[ConversationOut]:
+>>>>>>> origin/feature/MessageAndConversation
         try:
             return self.__crud_conversation.get_one_by(db=db, filter=filter)
         except:
@@ -63,6 +106,7 @@ class ConversationServiceImpl(ConversationService):
             )
             return None
 
+<<<<<<< HEAD
     def check_conversation(self, db: Session, current_user_membership: UserSubscriptionPlan, conversation_id: str, chatbot_id: str, client_ip: str) -> ConversationOut:
         try:
             conversation = self.get_one_with_filter_or_none(db=db, filter={"id": conversation_id}, current_user_membership= current_user_membership)
@@ -72,6 +116,19 @@ class ConversationServiceImpl(ConversationService):
                     "user_id": current_user_membership.u_id,
                     "chatbot_id": chatbot_id,
                     "conversation_name": client_info['countryCode'] + str(random.randint(100000000,999999999))
+=======
+    def check_conversation(self, db: Session, conversation_id: str, chatbot_id: str, client_ip: str) -> ConversationOut:
+        try:
+            conversation = self.get_one_with_filter_or_none(db=db, filter={"id": conversation_id})
+            if conversation is None:
+                client_info = json.loads(requests.get('http://ip-api.com/json/' + client_ip).text)
+                from app.services.impl.chatbot_service_impl import ChatBotServiceImpl
+                __chatbot_service = ChatBotServiceImpl()
+                conversation_create = {
+                    "user_id": __chatbot_service.get_one_with_filter_or_none(db=db, filter={"id": chatbot_id}).user_id,
+                    "chatbot_id": chatbot_id,
+                    "conversation_name": client_info['countryCode'] + str(client_ip.replace(".",""))
+>>>>>>> origin/feature/MessageAndConversation
                 }
                 return self.__crud_conversation.create(db, obj_in=conversation_create)
             else:
@@ -84,6 +141,58 @@ class ConversationServiceImpl(ConversationService):
                 detail="Check Conversation failed: An error occurred", status_code=500
             )
 
+<<<<<<< HEAD
+=======
+    def get_all_or_none(self, db: Session, current_user_membership: UserSubscriptionPlan) -> Optional[List[ConversationOut]]:
+        try:
+            results = self.__crud_conversation.get_multi(db=db, filter_param={"user_id": current_user_membership.u_id})
+            return results
+        except:
+            logger.exception(
+                f"Exception in {__name__}.{self.__class__.__name__}.get_all_or_none"
+            )
+            return None
+
+    def load_messsages(self, conversation_id, db: Session, current_user_membership: UserSubscriptionPlan):
+        try:
+            messages = self.__crud_message.get_messages_by_conversation_id(db=db, conversation_id=conversation_id)
+            return messages
+        except:
+            logger.exception(
+                f"Exception in {__name__}.{self.__class__.__name__}.get_messages_by_conversation_id"
+            )
+            return None
+
+    def join_conversation(self, conversation_id: str, db: Session, current_user_membership: UserSubscriptionPlan):
+        try:
+            result = self.__crud_conversation.update_one_by_id(db=db, id=uuid.UUID(conversation_id), obj_in={"is_taken": True})
+            if result.is_taken == True:
+                return True
+        except:
+            logger.exception(
+                f"Exception in {__name__}.{self.__class__.__name__}.join_conversation"
+            )
+            return None
+
+    def message(self, conversation_id: str, message: str, db: Session, current_user_membership: UserSubscriptionPlan):
+        try:
+            conversation = self.get_one_with_filter_or_none(db=db, filter={"id": conversation_id})
+            message_form = {
+                "sender_id": current_user_membership.u_id,
+                "sender_type": "agent",
+                "message": message,
+                "conversation_id": conversation.id
+            }
+            add_message = self.__crud_message_base.create(db=db, obj_in=message_form)
+            return add_message
+        except:
+            logger.exception(
+                f"Exception in {__name__}.{self.__class__.__name__}.message"
+            )
+            return None
+
+
+>>>>>>> origin/feature/MessageAndConversation
 # # ask question
     # def conversation(self, db: Session, query: str, conversation_id: UUID, token: str):
     #     """Get answer from the chat completation."""

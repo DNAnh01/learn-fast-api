@@ -25,6 +25,7 @@ class ConversationOut(ConversationBase):
     updated_at: Optional[datetime]
     ended_at: Optional[datetime]
     rating_score: Optional[float]
+    is_taken: bool
 
     class Config:
         orm_mode = True

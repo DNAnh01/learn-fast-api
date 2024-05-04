@@ -22,6 +22,36 @@ def get_all(
     conversations = conversation_service.get_all_or_none(db=db, current_user_membership=current_user_membership)
     return conversations
 
+@router.get("/{conversation_id}", status_code=status.HTTP_200_OK)
+def load_messages(
+    conversation_id: str,
+    current_user_membership: UserSubscriptionPlan = Depends(oauth2.get_current_user_membership_info_by_token),
+    db: Session = Depends(deps.get_db)
+):
+    messages = conversation_service.load_messsages(conversation_id=conversation_id, db=db, current_user_membership=current_user_membership)
+    return messages
+
+@router.get("/{conversation_id}/join", status_code=status.HTTP_200_OK)
+def join_conversation(
+    conversation_id: str,
+    current_user_membership: UserSubscriptionPlan = Depends(oauth2.get_current_user_membership_info_by_token),
+    db: Session = Depends(deps.get_db)
+):
+    user_join = conversation_service.join_conversation(conversation_id=conversation_id, db=db, current_user_membership=current_user_membership)
+    if user_join == True:
+        return status.HTTP_200_OK
+    else:
+        return status.HTTP_404_NOT_FOUND
+
+@router.post("/{conversation_id}/message", status_code=status.HTTP_200_OK)
+def message_chatbot(
+        conversation_id: str,
+        message: dict,
+        current_user_membership: UserSubscriptionPlan = Depends(oauth2.get_current_user_membership_info_by_token),
+        db: Session = Depends(deps.get_db)
+):
+    response = conversation_service.message(db=db, message=message['message'], current_user_membership=current_user_membership, conversation_id=conversation_id)
+    return response
 
 # @router.post("/create-conversation", status_code=status.HTTP_201_CREATED, response_model=ConversationOut)
 # def create(token: str, conversation: ConversationCreate, chatbot_id: uuid.UUID, db: Session = Depends(deps.get_db)

@@ -1,4 +1,4 @@
-from sqlalchemy import Column, DateTime, Float, ForeignKey, String
+from sqlalchemy import Column, DateTime, Float, ForeignKey, String, Boolean
 from sqlalchemy.dialects.postgresql.base import UUID
 from sqlalchemy.orm import relationship
 
@@ -18,7 +18,7 @@ class Conversation(Base):
     ended_at = Column(DateTime, nullable= True)
     rating_score = Column(Float, nullable=True)
     conversation_name = Column(String)
-
+    is_taken = Column(Boolean, default=False)
 
     user = relationship("User", back_populates="conversations")
 

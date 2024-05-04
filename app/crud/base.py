@@ -1,3 +1,4 @@
+import uuid
 from datetime import datetime
 from typing import Any, Dict, Generic, List, Optional, Type, TypeVar, Union
 
@@ -179,6 +180,22 @@ class CRUDBase(Generic[ModelType, CreateSchemaType, UpdateSchemaType]):
             .first()
         )
 
+        if not model:
+            return None
+
+        return self.update(db=db, db_obj=model, obj_in=obj_in)
+
+    def update_one_by_id(
+        self,
+        db: Session,
+        id: uuid.UUID,
+        obj_in: Union[UpdateSchemaType, Dict[str, Any]] = "{}",
+    ) -> Optional[ModelType]:
+        model = (
+            db.query(self.model)
+            .filter(self.model.id == id, self.model.deleted_at == None)
+            .first()
+        )
         if not model:
             return None
 

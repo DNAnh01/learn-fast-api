@@ -29,3 +29,15 @@ class ConversationService(ABC):
     def get_all_or_none(self, db: Session, current_user_membership: UserSubscriptionPlan) -> Optional[
         List[ConversationOut]]:
         pass
+
+    @abstractmethod
+    def load_messsages(self, conversation_id: str, db: Session, current_user_membership: UserSubscriptionPlan):
+        pass
+
+    @abstractmethod
+    def join_conversation(self, conversation_id: str, db: Session, current_user_membership: UserSubscriptionPlan):
+        pass
+
+    @abstractmethod
+    def message(self, conversation_id: str, message: str, db: Session, current_user_membership: UserSubscriptionPlan):
+        pass

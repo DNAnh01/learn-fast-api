@@ -20,8 +20,9 @@ from app.schemas.user_subscription_plan import UserSubscriptionPlan
 # from app.services.chatbot_service import ChatBotService
 # from app.services.chatbot_service_impl import ChatBotServiceImpl
 from app.services.abc.conversation_service import ConversationService
-# from app.services.message_service import MessageService
-# from app.services.message_service_impl import MessageServiceImpl
+from app.services.abc.message_service import MessageService
+from app.services.impl.message_service_impl import MessageServiceImpl
+from app.crud.crud_message import crud_message
 from app.services.abc.user_session_service import UserSessionService
 from app.services.impl.user_session_service_impl import UserSessionServiceImpl
 # from app.services.abc.chatbot_service import ChatBotService
@@ -33,6 +34,8 @@ class ConversationServiceImpl(ConversationService):
 
     def __init__(self):
         self.__crud_conversation = crud_conversation
+        self.__crud_message: MessageService = MessageServiceImpl()
+        self.__crud_message_base = crud_message
         # self.__chatbot_service: ChatBotService = ChatBotServiceImpl()
         # self.__message_service: MessageService = MessageServiceImpl()
         # self.__user_session_service: UserSessionService = UserSessionServiceImpl()
@@ -101,6 +104,45 @@ class ConversationServiceImpl(ConversationService):
                 f"Exception in {__name__}.{self.__class__.__name__}.get_all_or_none"
             )
             return None
+
+    def load_messsages(self, conversation_id, db: Session, current_user_membership: UserSubscriptionPlan):
+        try:
+            messages = self.__crud_message.get_messages_by_conversation_id(db=db, conversation_id=conversation_id)
+            return messages
+        except:
+            logger.exception(
+                f"Exception in {__name__}.{self.__class__.__name__}.get_messages_by_conversation_id"
+            )
+            return None
+
+    def join_conversation(self, conversation_id: str, db: Session, current_user_membership: UserSubscriptionPlan):
+        try:
+            result = self.__crud_conversation.update_one_by_id(db=db, id=uuid.UUID(conversation_id), obj_in={"is_taken": True})
+            if result.is_taken == True:
+                return True
+        except:
+            logger.exception(
+                f"Exception in {__name__}.{self.__class__.__name__}.join_conversation"
+            )
+            return None
+
+    def message(self, conversation_id: str, message: str, db: Session, current_user_membership: UserSubscriptionPlan):
+        try:
+            conversation = self.get_one_with_filter_or_none(db=db, filter={"id": conversation_id})
+            message_form = {
+                "sender_id": current_user_membership.u_id,
+                "sender_type": "agent",
+                "message": message,
+                "conversation_id": conversation.id
+            }
+            add_message = self.__crud_message_base.create(db=db, obj_in=message_form)
+            return add_message
+        except:
+            logger.exception(
+                f"Exception in {__name__}.{self.__class__.__name__}.message"
+            )
+            return None
+
 
 # # ask question
     # def conversation(self, db: Session, query: str, conversation_id: UUID, token: str):

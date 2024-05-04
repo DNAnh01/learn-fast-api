@@ -133,16 +133,20 @@ class ChatBotServiceImpl(ChatBotService):
                 "conversation_id": conversation.id
             }
             add_message = self.__crud_message_base.create(db=db, obj_in=message_form)
-            # Handle response and add to Message
-            response, chatbot_id = self.handle_message(db=db, chatbot_id=chatbot_id, conversation_id=conversation_id, message=message)
-            message_form = {
-                "sender_id": chatbot_id,
-                "sender_type": "bot",
-                "message": response,
-                "conversation_id": conversation.id
-            }
-            add_message = self.__crud_message_base.create(db=db, obj_in=message_form)
-            return add_message
+            if conversation.is_taken == False:
+                # Handle auto response and add to Message
+                response, chatbot_id = self.handle_message(db=db, chatbot_id=chatbot_id, conversation_id=conversation_id, message=message)
+                message_form = {
+                    "sender_id": chatbot_id,
+                    "sender_type": "bot",
+                    "message": response,
+                    "conversation_id": conversation.id
+                }
+                add_message = self.__crud_message_base.create(db=db, obj_in=message_form)
+                return add_message
+            else:
+                # Handle manual response and add to Message
+                return add_message
         except:
             traceback.print_exc()
             pass

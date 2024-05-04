@@ -40,6 +40,7 @@ class CRUDBase(Generic[ModelType, CreateSchemaType, UpdateSchemaType]):
         db: Session,
         filter_param: dict = None,
     ) -> List[ModelType]:
+        print(self.model)
         query = query_builder(
             db=db,
             model=self.model,

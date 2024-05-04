@@ -83,7 +83,8 @@ class ChatBotServiceImpl(ChatBotService):
 
     def get_all_or_none(self, db: Session, current_user_membership: UserSubscriptionPlan) -> Optional[List[ChatBotOut]]:
         try:
-            return self.__crud_chatbot.get_multi(db=db, filter_param={"user_id": current_user_membership.u_id})
+            results = self.__crud_chatbot.get_multi(db=db, filter_param={"user_id": current_user_membership.u_id})
+            return results
         except:
             logger.exception(
                 f"Exception in {__name__}.{self.__class__.__name__}.get_all_or_none"

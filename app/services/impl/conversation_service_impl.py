@@ -2,7 +2,7 @@ import datetime
 import json
 import random
 import uuid
-from typing import Any, Generator, Optional
+from typing import Any, Generator, Optional, List
 from uuid import UUID
 
 import PyPDF2
@@ -10,7 +10,7 @@ import requests
 from fastapi import Depends, HTTPException
 from openai import OpenAI
 from sqlalchemy.orm import Session
-
+from datetime import datetime
 from app.common.logger import setup_logger
 from app.core.config import settings
 from app.crud.crud_conversation import crud_conversation
@@ -91,6 +91,16 @@ class ConversationServiceImpl(ConversationService):
             raise HTTPException(
                 detail="Check Conversation failed: An error occurred", status_code=500
             )
+
+    def get_all_or_none(self, db: Session, current_user_membership: UserSubscriptionPlan) -> Optional[List[ConversationOut]]:
+        try:
+            results = self.__crud_conversation.get_multi(db=db, filter_param={"user_id": current_user_membership.u_id})
+            return results
+        except:
+            logger.exception(
+                f"Exception in {__name__}.{self.__class__.__name__}.get_all_or_none"
+            )
+            return None
 
 # # ask question
     # def conversation(self, db: Session, query: str, conversation_id: UUID, token: str):

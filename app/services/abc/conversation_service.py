@@ -18,6 +18,14 @@ class ConversationService(ABC):
         pass
 
     @abstractmethod
+    def get_all_or_none(self, db: Session, current_user_membership: UserSubscriptionPlan) -> Optional[List[ConversationOut]]:
+        pass
+
+    @abstractmethod
     def check_conversation(self, db: Session, conversation_id: str, chatbot_id: str, client_ip: str) -> ConversationOut:
         pass
 
+    @abstractmethod
+    def get_all_or_none(self, db: Session, current_user_membership: UserSubscriptionPlan) -> Optional[
+        List[ConversationOut]]:
+        pass

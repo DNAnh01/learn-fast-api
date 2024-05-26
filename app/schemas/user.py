@@ -53,7 +53,6 @@ class UserOut(BaseModel):
     payment_information: Optional[str]
     is_verified: bool
     user_role: str
-
     is_active: bool
     created_at: datetime
     updated_at: datetime

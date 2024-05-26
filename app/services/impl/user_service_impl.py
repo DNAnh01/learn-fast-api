@@ -2,6 +2,8 @@ from typing import Optional
 
 from sqlalchemy.orm import Session
 
+
+from app.schemas.user_subscription_plan import UserSubscriptionPlan
 from app.common.logger import setup_logger
 from app.crud.crud_user import crud_user
 from app.schemas.user import (UserCreate, UserInDB, UserOut,
@@ -126,3 +128,9 @@ class UserServiceImpl(UserService):
         user = self.__crud_user.get_one_by_or_fail(db, {"email": email})
         return self.__crud_user.update(db, db_obj=user, obj_in={"is_verified": True})
 
+    def get_profile(self, db: Session, current_user_membership: UserSubscriptionPlan) -> UserOut:
+        user_found = self.__crud_user.get(db=db, id=current_user_membership.u_id)
+        if user_found:
+            result: UserOut = UserOut(**user_found.__dict__)
+            return result
+        return None

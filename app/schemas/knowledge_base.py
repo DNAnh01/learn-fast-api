@@ -1,6 +1,7 @@
 import uuid
 from typing import Optional
 
+from datetime import datetime
 from pydantic import BaseModel
 
 
@@ -29,6 +30,10 @@ class KnowledgeBaseOut(KnowledgeBaseBase):
     file_path: str
     character_count: float
     file_size: int
+    is_active: Optional[bool] = None
+    created_at: Optional[datetime] = None
+    updated_at: Optional[datetime] = None
+    deleted_at: Optional[datetime] = None
 
     class Config:
         orm_mode = True

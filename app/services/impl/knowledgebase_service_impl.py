@@ -29,13 +29,18 @@ class KnowledgeBaseServiceImpl(KnowledgeBaseService):
     def create(self, db: Session, chatbot_id: str, file_path: str, file_name: str) -> KnowledgeBaseOut:
         try:
             content_data = utils.read_pdf(file_path)
+            
             knowledge_base_data = {
                 "title": file_name,  # Add appropriate title
                 "content_type": file_name.split(".")[-1],  # Add appropriate content type
                 "file_path": file_path,
                 "character_count": len(content_data),
                 "file_size": os.path.getsize(file_path),
-                "chatbot_id": chatbot_id
+                "chatbot_id": chatbot_id,
+                "is_active": True,
+                "created_at": datetime.datetime.now(),
+                "updated_at": datetime.datetime.now(),
+                "deleted_at": None
             }
             KN_created = self.__crud_knowledgeBase.create(db=db, obj_in=knowledge_base_data)
             if KN_created:

@@ -6,7 +6,6 @@ from app.db.base_class import Base
 from app.models.conversation import Conversation
 from app.models.knowledge_base import KnowledgeBase
 
-
 class ChatBot(Base):
     __tablename__ = "chatbots"
     chatbot_name = Column(String, nullable=False)

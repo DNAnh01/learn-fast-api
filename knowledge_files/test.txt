@@ -1,0 +1,9 @@
+Python là một ngôn ngữ lập trình thông dụng. Nó được thiết kế với mục tiêu làm cho việc đọc và viết mã lập trình trở nên dễ dàng hơn.
+
+Python được sử dụng trong nhiều lĩnh vực khác nhau như phân tích dữ liệu, phát triển web, học máy, trí tuệ nhân tạo, và nhiều hơn nữa.
+
+Python có một cú pháp đơn giản, dễ đọc, giúp giảm thiểu chi phí của việc bảo trì mã nguồn. Python hỗ trợ nhiều mô hình lập trình, bao gồm lập trình hướng đối tượng và lập trình hàm.
+
+Python có một thư viện chuẩn lớn và một cộng đồng lập trình viên rộng lớn. Thư viện chuẩn hỗ trợ nhiều tác vụ như kết nối với các cơ sở dữ liệu, đọc và ghi các định dạng tệp khác nhau, hỗ trợ giao thức mạng, và nhiều hơn nữa.
+
+Python được phát triển và duy trì bởi Python Software Foundation. Nó là một ngôn ngữ lập trình mã nguồn mở, có nghĩa là mã nguồn của nó được phân phối tự do và mở cho tất cả mọi người để xem và sửa đổi.
